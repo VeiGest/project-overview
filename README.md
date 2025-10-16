@@ -55,6 +55,50 @@
 - **Rate Limiting**: Proteção contra abuso
 - **Documentação**: Swagger/OpenAPI integrado
 
+## 🔐 Sistema de Roles e Permissions
+
+O VeiGest implementa um sistema robusto de controlo de acesso baseado na arquitetura **User → Role → Permission**:
+
+### 🎭 Roles Disponíveis
+
+| Role | Nível | Descrição |
+|------|-------|-----------|
+| **Super Administrador** | 100 | Acesso total, incluindo configurações críticas |
+| **Administrador** | 90 | Acesso completo exceto configurações críticas |
+| **Gestor de Frota** | 50 | Gestão de veículos, condutores e relatórios |
+| **Gestor de Manutenção** | 40 | Manutenções, documentos e alertas |
+| **Condutor Senior** | 20 | Condutor com permissões adicionais |
+| **Condutor** | 10 | Acesso básico à app móvel |
+| **Visualizador** | 5 | Apenas leitura de dados |
+
+### 🔑 Módulos de Permissions
+
+- **users**: Gestão de utilizadores e roles
+- **vehicles**: CRUD de veículos e atribuições
+- **drivers**: Perfis e histórico de condutores
+- **maintenances**: Manutenções e agendamentos
+- **documents**: Upload e gestão documental
+- **fuel_logs**: Registos de combustível
+- **routes**: Viagens e tracking GPS
+- **alerts**: Sistema de alertas
+- **reports**: Relatórios e exportações
+- **system**: Configurações e auditoria
+- **dashboard**: Painéis e KPIs
+
+### 🛡️ Controlo de Acesso
+
+```php
+// Exemplo de verificação de permissão
+if (Yii::$app->user->can('vehicles.create')) {
+    // Utilizador pode criar veículos
+}
+
+// Verificação de role
+if (Yii::$app->user->identity->hasRole('gestor')) {
+    // Utilizador é gestor
+}
+```
+
 ## 🏗️ Arquitetura
 
 ```mermaid

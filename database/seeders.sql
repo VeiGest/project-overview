@@ -19,28 +19,32 @@ TRUNCATE TABLE drivers_profiles;
 TRUNCATE TABLE users;
 TRUNCATE TABLE support_tickets;
 TRUNCATE TABLE reports;
+-- Não limpar roles e permissions pois são dados estruturais
+-- TRUNCATE TABLE role_permissions;
+-- TRUNCATE TABLE permissions;
+-- TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================
 -- USUÁRIOS DE EXEMPLO
 -- ============================================================================
 
-INSERT INTO users (nome, email, senha_hash, telefone, role, estado) VALUES
+INSERT INTO users (nome, email, senha_hash, telefone, role_id, role, estado) VALUES
 -- Administradores
-('João Silva', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351912345678', 'admin', 'ativo'),
-('Maria Santos', 'maria.admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351987654321', 'admin', 'ativo'),
+('João Silva', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351912345678', 2, 'admin', 'ativo'),
+('Maria Santos', 'maria.admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351987654321', 2, 'admin', 'ativo'),
 
 -- Gestores
-('Pedro Costa', 'gestor@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351923456789', 'gestor', 'ativo'),
-('Ana Ferreira', 'ana.gestor@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351934567890', 'gestor', 'ativo'),
+('Pedro Costa', 'gestor@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351923456789', 3, 'gestor', 'ativo'),
+('Ana Ferreira', 'ana.gestor@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351934567890', 4, 'gestor', 'ativo'), -- Gestor de Manutenção
 
 -- Condutores
-('Carlos Mendes', 'carlos@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351945678901', 'condutor', 'ativo'),
-('Rita Oliveira', 'rita@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351956789012', 'condutor', 'ativo'),
-('Miguel Sousa', 'miguel@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351967890123', 'condutor', 'ativo'),
-('Joana Rodrigues', 'joana@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351978901234', 'condutor', 'ativo'),
-('Rui Almeida', 'rui@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351989012345', 'condutor', 'ativo'),
-('Sofia Pereira', 'sofia@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351990123456', 'condutor', 'ativo');
+('Carlos Mendes', 'carlos@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351945678901', 6, 'condutor', 'ativo'),
+('Rita Oliveira', 'rita@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351956789012', 5, 'condutor', 'ativo'), -- Condutor Senior
+('Miguel Sousa', 'miguel@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351967890123', 6, 'condutor', 'ativo'),
+('Joana Rodrigues', 'joana@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351978901234', 6, 'condutor', 'ativo'),
+('Rui Almeida', 'rui@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351989012345', 6, 'condutor', 'ativo'),
+('Sofia Pereira', 'sofia@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+351990123456', 7, 'condutor', 'ativo'); -- Visualizador
 
 -- ============================================================================
 -- PERFIS DOS CONDUTORES

@@ -13,6 +13,52 @@ USE veigest;
 -- 1. AUTENTICAÇÃO E UTILIZADORES
 -- ============================================================================
 
+-- Tabela de roles/funções do sistema
+CREATE TABLE roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL UNIQUE,
+    descricao TEXT,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    nivel_hierarquia INT NOT NULL DEFAULT 1,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_slug (slug),
+    INDEX idx_nivel_hierarquia (nivel_hierarquia)
+);
+
+-- Tabela de permissões do sistema
+CREATE TABLE permissions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL UNIQUE,
+    descricao TEXT,
+    modulo VARCHAR(50) NOT NULL,
+    acao VARCHAR(50) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_slug (slug),
+    INDEX idx_modulo (modulo),
+    INDEX idx_acao (acao)
+);
+
+-- Tabela de relacionamento roles-permissions (N:N)
+CREATE TABLE role_permissions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_role_permission (role_id, permission_id),
+    INDEX idx_role_id (role_id),
+    INDEX idx_permission_id (permission_id)
+);
+
 -- Tabela principal de utilizadores
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -20,13 +66,16 @@ CREATE TABLE users (
     email VARCHAR(150) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
-    role ENUM('admin', 'gestor', 'condutor') NOT NULL DEFAULT 'condutor',
+    role_id INT,
+    role ENUM('admin', 'gestor', 'condutor') NOT NULL DEFAULT 'condutor', -- Mantido para compatibilidade
     estado ENUM('ativo', 'inativo') NOT NULL DEFAULT 'ativo',
     data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ultimo_login DATETIME,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL,
     INDEX idx_email (email),
+    INDEX idx_role_id (role_id),
     INDEX idx_role (role),
     INDEX idx_estado (estado)
 );
@@ -320,6 +369,160 @@ CREATE TABLE support_tickets (
 -- 7. DADOS INICIAIS (SEEDS)
 -- ============================================================================
 
+-- Inserir roles padrão do sistema
+INSERT INTO roles (nome, descricao, slug, nivel_hierarquia) VALUES
+('Super Administrador', 'Acesso total ao sistema, incluindo configurações críticas e gestão de utilizadores.', 'super-admin', 100),
+('Administrador', 'Administrador geral com acesso a todas as funcionalidades exceto configurações críticas.', 'admin', 90),
+('Gestor de Frota', 'Gestor responsável pela frota, veículos, condutores e relatórios operacionais.', 'gestor', 50),
+('Gestor de Manutenção', 'Responsável pela gestão de manutenções, documentos e alertas dos veículos.', 'gestor-manutencao', 40),
+('Condutor Senior', 'Condutor experiente com permissões adicionais para relatórios e histórico.', 'condutor-senior', 20),
+('Condutor', 'Condutor padrão com acesso básico à aplicação móvel e funcionalidades essenciais.', 'condutor', 10),
+('Visualizador', 'Acesso apenas de leitura para consulta de dados e relatórios.', 'visualizador', 5);
+
+-- Inserir permissions padrão do sistema
+INSERT INTO permissions (nome, descricao, modulo, acao, slug) VALUES
+-- Gestão de Utilizadores
+('Criar Utilizadores', 'Permissão para criar novos utilizadores', 'users', 'create', 'users.create'),
+('Ver Utilizadores', 'Permissão para visualizar utilizadores', 'users', 'read', 'users.read'),
+('Editar Utilizadores', 'Permissão para editar utilizadores existentes', 'users', 'update', 'users.update'),
+('Eliminar Utilizadores', 'Permissão para eliminar utilizadores', 'users', 'delete', 'users.delete'),
+('Gerir Roles', 'Permissão para gerir roles e permissões', 'users', 'manage_roles', 'users.manage_roles'),
+
+-- Gestão de Veículos
+('Criar Veículos', 'Permissão para adicionar novos veículos à frota', 'vehicles', 'create', 'vehicles.create'),
+('Ver Veículos', 'Permissão para visualizar veículos da frota', 'vehicles', 'read', 'vehicles.read'),
+('Editar Veículos', 'Permissão para editar informações dos veículos', 'vehicles', 'update', 'vehicles.update'),
+('Eliminar Veículos', 'Permissão para remover veículos da frota', 'vehicles', 'delete', 'vehicles.delete'),
+('Atribuir Condutores', 'Permissão para atribuir condutores aos veículos', 'vehicles', 'assign_driver', 'vehicles.assign_driver'),
+
+-- Gestão de Condutores
+('Criar Perfis de Condutores', 'Permissão para criar perfis de condutores', 'drivers', 'create', 'drivers.create'),
+('Ver Perfis de Condutores', 'Permissão para visualizar perfis de condutores', 'drivers', 'read', 'drivers.read'),
+('Editar Perfis de Condutores', 'Permissão para editar perfis de condutores', 'drivers', 'update', 'drivers.update'),
+('Eliminar Perfis de Condutores', 'Permissão para eliminar perfis de condutores', 'drivers', 'delete', 'drivers.delete'),
+('Ver Histórico de Condutores', 'Permissão para visualizar histórico de viagens dos condutores', 'drivers', 'view_history', 'drivers.view_history'),
+
+-- Manutenções
+('Criar Manutenções', 'Permissão para registar manutenções', 'maintenances', 'create', 'maintenances.create'),
+('Ver Manutenções', 'Permissão para visualizar histórico de manutenções', 'maintenances', 'read', 'maintenances.read'),
+('Editar Manutenções', 'Permissão para editar registos de manutenções', 'maintenances', 'update', 'maintenances.update'),
+('Eliminar Manutenções', 'Permissão para eliminar registos de manutenções', 'maintenances', 'delete', 'maintenances.delete'),
+('Agendar Manutenções', 'Permissão para agendar manutenções futuras', 'maintenances', 'schedule', 'maintenances.schedule'),
+
+-- Documentos
+('Upload de Documentos', 'Permissão para fazer upload de documentos', 'documents', 'create', 'documents.create'),
+('Ver Documentos', 'Permissão para visualizar documentos', 'documents', 'read', 'documents.read'),
+('Editar Documentos', 'Permissão para editar informações de documentos', 'documents', 'update', 'documents.update'),
+('Eliminar Documentos', 'Permissão para eliminar documentos', 'documents', 'delete', 'documents.delete'),
+('Gerir Validades', 'Permissão para gerir validades de documentos', 'documents', 'manage_validity', 'documents.manage_validity'),
+
+-- Registos de Combustível
+('Registar Combustível', 'Permissão para registar abastecimentos', 'fuel_logs', 'create', 'fuel_logs.create'),
+('Ver Registos de Combustível', 'Permissão para visualizar registos de combustível', 'fuel_logs', 'read', 'fuel_logs.read'),
+('Editar Registos de Combustível', 'Permissão para editar registos de combustível', 'fuel_logs', 'update', 'fuel_logs.update'),
+('Eliminar Registos de Combustível', 'Permissão para eliminar registos de combustível', 'fuel_logs', 'delete', 'fuel_logs.delete'),
+
+-- Rotas e Viagens
+('Iniciar Viagens', 'Permissão para iniciar novas viagens', 'routes', 'create', 'routes.create'),
+('Ver Rotas', 'Permissão para visualizar rotas e viagens', 'routes', 'read', 'routes.read'),
+('Editar Rotas', 'Permissão para editar informações das rotas', 'routes', 'update', 'routes.update'),
+('Eliminar Rotas', 'Permissão para eliminar registos de rotas', 'routes', 'delete', 'routes.delete'),
+('Ver Tracking GPS', 'Permissão para visualizar tracking GPS em tempo real', 'routes', 'view_gps', 'routes.view_gps'),
+
+-- Alertas
+('Criar Alertas', 'Permissão para criar alertas manuais', 'alerts', 'create', 'alerts.create'),
+('Ver Alertas', 'Permissão para visualizar alertas', 'alerts', 'read', 'alerts.read'),
+('Marcar Alertas como Resolvidos', 'Permissão para resolver alertas', 'alerts', 'resolve', 'alerts.resolve'),
+('Configurar Alertas', 'Permissão para configurar alertas automáticos', 'alerts', 'configure', 'alerts.configure'),
+
+-- Relatórios
+('Gerar Relatórios', 'Permissão para gerar novos relatórios', 'reports', 'create', 'reports.create'),
+('Ver Relatórios', 'Permissão para visualizar relatórios existentes', 'reports', 'read', 'reports.read'),
+('Exportar Relatórios', 'Permissão para exportar relatórios', 'reports', 'export', 'reports.export'),
+('Relatórios Avançados', 'Permissão para aceder a relatórios avançados', 'reports', 'advanced', 'reports.advanced'),
+
+-- Sistema e Configurações
+('Configurações do Sistema', 'Permissão para alterar configurações do sistema', 'system', 'config', 'system.config'),
+('Ver Logs de Atividade', 'Permissão para visualizar logs de auditoria', 'system', 'view_logs', 'system.view_logs'),
+('Gerir Backups', 'Permissão para gerir backups do sistema', 'system', 'backup', 'system.backup'),
+('Suporte Técnico', 'Permissão para aceder ao suporte técnico', 'system', 'support', 'system.support'),
+
+-- Dashboard
+('Ver Dashboard', 'Permissão para aceder ao dashboard básico', 'dashboard', 'read', 'dashboard.read'),
+('Dashboard Avançado', 'Permissão para aceder ao dashboard avançado com KPIs', 'dashboard', 'advanced', 'dashboard.advanced');
+
+-- Associar permissions aos roles
+-- Super Admin (ID=1) - Todas as permissões
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 1, id FROM permissions;
+
+-- Admin (ID=2) - Todas exceto configurações críticas do sistema
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 2, id FROM permissions 
+WHERE slug NOT IN ('system.config', 'system.backup');
+
+-- Gestor de Frota (ID=3)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 3, id FROM permissions 
+WHERE slug IN (
+    'vehicles.create', 'vehicles.read', 'vehicles.update', 'vehicles.assign_driver',
+    'drivers.create', 'drivers.read', 'drivers.update', 'drivers.view_history',
+    'fuel_logs.read', 'fuel_logs.update',
+    'routes.read', 'routes.view_gps',
+    'alerts.read', 'alerts.resolve',
+    'reports.create', 'reports.read', 'reports.export',
+    'dashboard.read', 'dashboard.advanced'
+);
+
+-- Gestor de Manutenção (ID=4)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 4, id FROM permissions 
+WHERE slug IN (
+    'vehicles.read',
+    'maintenances.create', 'maintenances.read', 'maintenances.update', 'maintenances.schedule',
+    'documents.create', 'documents.read', 'documents.update', 'documents.manage_validity',
+    'alerts.create', 'alerts.read', 'alerts.resolve', 'alerts.configure',
+    'reports.read',
+    'dashboard.read'
+);
+
+-- Condutor Senior (ID=5)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 5, id FROM permissions 
+WHERE slug IN (
+    'vehicles.read',
+    'drivers.read',
+    'fuel_logs.create', 'fuel_logs.read',
+    'routes.create', 'routes.read',
+    'alerts.read',
+    'reports.read',
+    'dashboard.read'
+);
+
+-- Condutor (ID=6)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 6, id FROM permissions 
+WHERE slug IN (
+    'vehicles.read',
+    'fuel_logs.create', 'fuel_logs.read',
+    'routes.create', 'routes.read',
+    'alerts.read',
+    'dashboard.read'
+);
+
+-- Visualizador (ID=7)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 7, id FROM permissions 
+WHERE slug IN (
+    'vehicles.read',
+    'drivers.read',
+    'fuel_logs.read',
+    'routes.read',
+    'alerts.read',
+    'reports.read',
+    'dashboard.read'
+);
+
 -- Configurações padrão do sistema
 INSERT INTO settings (chave, valor, tipo, descricao, categoria) VALUES
 ('app_name', 'VeiGest', 'string', 'Nome da aplicação', 'geral'),
@@ -331,8 +534,8 @@ INSERT INTO settings (chave, valor, tipo, descricao, categoria) VALUES
 ('backup_retention_days', '30', 'number', 'Dias para manter backups', 'sistema');
 
 -- Usuário administrador padrão
-INSERT INTO users (nome, email, senha_hash, role, estado) VALUES
-('Administrador', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'ativo');
+INSERT INTO users (nome, email, senha_hash, role_id, role, estado) VALUES
+('Administrador', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 'admin', 'ativo');
 
 SET FOREIGN_KEY_CHECKS = 1;
 

@@ -4,12 +4,43 @@
 
 ```mermaid
 erDiagram
+    ROLES {
+        int id PK
+        varchar nome UK
+        text descricao
+        varchar slug UK
+        int nivel_hierarquia
+        boolean ativo
+        datetime criado_em
+        datetime atualizado_em
+    }
+    
+    PERMISSIONS {
+        int id PK
+        varchar nome UK
+        text descricao
+        varchar modulo
+        varchar acao
+        varchar slug UK
+        boolean ativo
+        datetime criado_em
+        datetime atualizado_em
+    }
+    
+    ROLE_PERMISSIONS {
+        int id PK
+        int role_id FK
+        int permission_id FK
+        datetime criado_em
+    }
+    
     USERS {
         int id PK
         varchar nome
         varchar email UK
         varchar senha_hash
         varchar telefone
+        int role_id FK
         enum role
         enum estado
         datetime data_criacao
@@ -192,6 +223,12 @@ erDiagram
     }
 
     %% Relationships
+    %% Roles and Permissions System
+    ROLES ||--o{ ROLE_PERMISSIONS : "has"
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : "belongs_to"
+    ROLES ||--o{ USERS : "assigned_to"
+    
+    %% Original Relationships
     USERS ||--o{ DRIVERS_PROFILES : "has"
     USERS ||--o{ VEHICLES : "drives"
     USERS ||--o{ FUEL_LOGS : "registers"
@@ -216,10 +253,22 @@ erDiagram
 
 ## Relacionamentos Principais
 
-### 1:1 (Um para Um)
+### 🔐 Sistema de Roles e Permissions
+
+#### 1:N (Um para Muitos)
+- `ROLES` → `USERS` (Um role pode ser atribuído a vários usuários)
+- `ROLES` → `ROLE_PERMISSIONS` (Um role pode ter várias permissões)
+- `PERMISSIONS` → `ROLE_PERMISSIONS` (Uma permissão pode pertencer a vários roles)
+
+#### M:N (Muitos para Muitos) - Tabela Intermediária
+- `ROLES` ←→ `PERMISSIONS` através de `ROLE_PERMISSIONS` (Roles têm múltiplas permissões e permissões podem ser atribuídas a múltiplos roles)
+
+### 👥 Relacionamentos Tradicionais
+
+#### 1:1 (Um para Um)
 - `USERS` ←→ `DRIVERS_PROFILES` (Um usuário condutor tem um perfil)
 
-### 1:N (Um para Muitos)
+#### 1:N (Um para Muitos)
 - `USERS` → `VEHICLES` (Um condutor pode ter vários veículos atribuídos)
 - `VEHICLES` → `MAINTENANCES` (Um veículo tem várias manutenções)
 - `VEHICLES` → `DOCUMENTS` (Um veículo tem vários documentos)
@@ -233,7 +282,7 @@ erDiagram
 - `USERS` → `ACTIVITY_LOGS` (Um usuário gera várias atividades)
 - `USERS` → `SUPPORT_TICKETS` (Um usuário cria vários tickets)
 
-### M:N (Muitos para Muitos) - Através de tabelas intermediárias
+#### M:N (Muitos para Muitos) - Através de tabelas intermediárias
 - `VEHICLES` ←→ `USERS` através de histórico em `ROUTES` (Vários condutores podem usar o mesmo veículo ao longo do tempo)
 
 ## Índices Recomendados
@@ -242,6 +291,11 @@ erDiagram
 - `users.email`
 - `vehicles.matricula`
 - `settings.chave`
+- `roles.nome`
+- `roles.slug`
+- `permissions.nome`
+- `permissions.slug`
+- `role_permissions(role_id, permission_id)` - Evitar duplicatas
 
 ### Índices de Performance
 - `fuel_logs(data, vehicle_id)` - Para relatórios de consumo
@@ -249,6 +303,9 @@ erDiagram
 - `alerts(status, data_limite)` - Para alertas ativos
 - `activity_logs(user_id, criado_em)` - Para auditoria
 - `documents(validade, status)` - Para documentos expirados
+- `users(role_id)` - Para consultas por role
+- `permissions(modulo, acao)` - Para consultas por módulo e ação
+- `roles(nivel_hierarquia)` - Para ordenação hierárquica
 
 ## Constraints e Regras de Negócio
 

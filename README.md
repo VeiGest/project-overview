@@ -99,6 +99,37 @@ if (Yii::$app->user->identity->hasRole('gestor')) {
 }
 ```
 
+## 🆕 Novas Funcionalidades
+
+### 🏢 Sistema Multi-Empresa
+O VeiGest agora suporta **múltiplas empresas** numa única instalação:
+
+- **Isolamento Completo**: Dados totalmente separados entre empresas
+- **Configurações Específicas**: Settings personalizados por organização  
+- **Planos de Subscrição**: Básico, Profissional e Enterprise
+- **Limites Configuráveis**: Controlo de veículos e condutores por empresa
+- **Gestão Centralizada**: Administração unificada de múltiplas empresas
+
+### 📁 Gestão Avançada de Ficheiros
+Sistema robusto para gestão de ficheiros com suporte a CDN:
+
+- **Multi-Servidor**: FileStash, AWS S3, Google Cloud, Azure
+- **Integridade**: Verificação MD5 e SHA256 automática
+- **Metadados**: Tags, categorias e metadados personalizados
+- **Controlo de Acesso**: Ficheiros públicos, privados ou restritos
+- **Deduplicação**: Evita ficheiros duplicados por empresa
+
+### 📄 Sistema de Documentos Melhorado
+Gestão inteligente de documentos com workflow avançado:
+
+- **Versionamento**: Histórico completo de versões
+- **Alertas Inteligentes**: Notificações antes da expiração
+- **Renovação Automática**: Configurável por tipo de documento
+- **Auditoria Completa**: Controlo total de criação/modificação
+- **Classificação**: Categorias, prioridades e tags flexíveis
+
+📖 **Documentação detalhada**: [MULTI_EMPRESA_FICHEIROS.md](database/MULTI_EMPRESA_FICHEIROS.md)
+
 ## 🏗️ Arquitetura
 
 ```mermaid

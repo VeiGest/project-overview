@@ -1,7 +1,7 @@
 -- ============================================================================
 -- VeiGest - Sistema de Gestão de Frotas Empresariais
 -- Database Schema - MariaDB/MySQL
--- Data: Outubro 2025
+-- Esquema inicial para a db
 -- ============================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;

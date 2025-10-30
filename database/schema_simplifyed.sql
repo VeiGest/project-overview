@@ -1,4 +1,4 @@
--- VeiGest - Schema Simplificado (convertido: RBAC Yii2)
+-- VeiGest - Schema Simplificado para MariaDB (RBAC Yii2)
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP DATABASE IF EXISTS veigest;
@@ -21,9 +21,9 @@ CREATE TABLE companies (
     configuracoes JSON,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX (nif),
-    INDEX (estado)
-);
+    INDEX idx_nif (nif),
+    INDEX idx_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- RBAC (Yii2) - substitui as tabelas roles, permissions, role_permissions
@@ -37,7 +37,7 @@ CREATE TABLE auth_rule (
 
 CREATE TABLE auth_item (
     name VARCHAR(64) NOT NULL PRIMARY KEY,
-    type INT NOT NULL, -- 1 = role, 2 = permission
+    type INT NOT NULL COMMENT '1=role, 2=permission',
     description TEXT,
     rule_name VARCHAR(64),
     data TEXT,
@@ -64,8 +64,6 @@ CREATE TABLE auth_assignment (
 
 -- ============================================================================
 -- 3. users e drivers_profiles (simplificados)
--- NOTE: removi coluna role_id / FK para compatibilidade com RBAC;
---       campo role (enum) mantido apenas como compatibilidade/legacy.
 -- ============================================================================
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -77,10 +75,12 @@ CREATE TABLE users (
     role ENUM('admin','gestor','condutor') NOT NULL DEFAULT 'condutor',
     estado ENUM('ativo','inativo') NOT NULL DEFAULT 'ativo',
     data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ultimo_login DATETIME,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
-);
+    INDEX idx_company_id (company_id),
+    INDEX idx_email (email),
+    INDEX idx_estado (estado),
+    CONSTRAINT fk_users_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE drivers_profiles (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -91,9 +91,11 @@ CREATE TABLE drivers_profiles (
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE (user_id)
-);
+    UNIQUE KEY uk_user_id (user_id),
+    INDEX idx_numero_carta (numero_carta),
+    INDEX idx_validade_carta (validade_carta),
+    CONSTRAINT fk_drivers_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. files (simplificado)
 CREATE TABLE files (
@@ -111,9 +113,12 @@ CREATE TABLE files (
     estado ENUM('ativo','arquivado','eliminado') NOT NULL DEFAULT 'ativo',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE RESTRICT
-);
+    INDEX idx_company_id (company_id),
+    INDEX idx_nome_arquivo (nome_arquivo),
+    INDEX idx_estado (estado),
+    CONSTRAINT fk_files_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. vehicles e maintenances
 CREATE TABLE vehicles (
@@ -129,10 +134,13 @@ CREATE TABLE vehicles (
     condutor_id INT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (condutor_id) REFERENCES users(id) ON DELETE SET NULL,
-    UNIQUE KEY (matricula, company_id)
-);
+    UNIQUE KEY uk_matricula_company (matricula, company_id),
+    INDEX idx_company_id (company_id),
+    INDEX idx_estado (estado),
+    INDEX idx_condutor_id (condutor_id),
+    CONSTRAINT fk_vehicles_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vehicles_condutor FOREIGN KEY (condutor_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE maintenances (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -144,9 +152,12 @@ CREATE TABLE maintenances (
     km_registro INT,
     proxima_data DATE,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-);
+    INDEX idx_vehicle_id (vehicle_id),
+    INDEX idx_proxima_data (proxima_data),
+    INDEX idx_data (data),
+    CONSTRAINT fk_maintenances_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_maintenances_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. documents (mantendo campos essenciais)
 CREATE TABLE documents (
@@ -168,14 +179,18 @@ CREATE TABLE documents (
     criado_por INT NOT NULL,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE RESTRICT,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (documento_anterior_id) REFERENCES documents(id) ON DELETE SET NULL,
-    FOREIGN KEY (criado_por) REFERENCES users(id) ON DELETE RESTRICT,
+    INDEX idx_file_id (file_id),
+    INDEX idx_data_validade (data_validade),
+    INDEX idx_status (status),
+    INDEX idx_tipo (tipo),
+    CONSTRAINT fk_documents_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_documents_file FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_documents_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    CONSTRAINT fk_documents_driver FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_documents_anterior FOREIGN KEY (documento_anterior_id) REFERENCES documents(id) ON DELETE SET NULL,
+    CONSTRAINT fk_documents_criado_por FOREIGN KEY (criado_por) REFERENCES users(id) ON DELETE RESTRICT,
     CONSTRAINT chk_documents_entity CHECK (vehicle_id IS NOT NULL OR driver_id IS NOT NULL)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. fuel_logs, routes, gps_points
 CREATE TABLE fuel_logs (
@@ -186,14 +201,16 @@ CREATE TABLE fuel_logs (
     data DATE NOT NULL,
     litros DECIMAL(10,2) NOT NULL,
     valor DECIMAL(10,2) NOT NULL,
-    preco_litro DECIMAL(8,4) GENERATED ALWAYS AS (CASE WHEN litros = 0 THEN 0 ELSE valor / litros END) STORED,
+    preco_litro DECIMAL(8,4) AS (CASE WHEN litros = 0 THEN 0 ELSE valor / litros END) STORED,
     km_atual INT,
-    referencia_ficheiro VARCHAR(255), -- Nao obrigatório
+    referencia_ficheiro VARCHAR(255),
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE SET NULL
-);
+    INDEX idx_data_vehicle (data, vehicle_id),
+    INDEX idx_vehicle_id (vehicle_id),
+    CONSTRAINT fk_fuel_logs_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fuel_logs_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fuel_logs_driver FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE routes (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -205,14 +222,17 @@ CREATE TABLE routes (
     distancia_km DECIMAL(10,2),
     km_inicial INT,
     km_final INT,
-    origem_coordenadas VARCHAR(255), -- latitude,longitude
-    destino_coordenadas VARCHAR(255), -- latitude,longitude
+    origem_coordenadas VARCHAR(255),
+    destino_coordenadas VARCHAR(255),
     status ENUM('iniciada','finalizada','cancelada') NOT NULL DEFAULT 'iniciada',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL
-);
+    INDEX idx_inicio (inicio),
+    INDEX idx_status (status),
+    INDEX idx_vehicle_id (vehicle_id),
+    CONSTRAINT fk_routes_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_routes_driver FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_routes_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE gps_points (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -220,8 +240,9 @@ CREATE TABLE gps_points (
     latitude DECIMAL(9,6) NOT NULL,
     longitude DECIMAL(9,6) NOT NULL,
     timestamp DATETIME NOT NULL,
-    FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
-);
+    INDEX idx_route_timestamp (route_id, timestamp),
+    CONSTRAINT fk_gps_points_route FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 8. alerts
 CREATE TABLE alerts (
@@ -239,11 +260,14 @@ CREATE TABLE alerts (
     notificado BOOLEAN NOT NULL DEFAULT FALSE,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     resolvido_em DATETIME,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
-);
+    INDEX idx_status (status),
+    INDEX idx_data_limite (data_limite),
+    INDEX idx_prioridade (prioridade),
+    CONSTRAINT fk_alerts_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_alerts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_alerts_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    CONSTRAINT fk_alerts_document FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 9. reports e activity_logs
 CREATE TABLE reports (
@@ -254,13 +278,15 @@ CREATE TABLE reports (
     periodo_inicio DATE,
     periodo_fim DATE,
     parametros JSON,
-    gerado_por INT NOT NULL,
+    gerado_por INT,
     arquivo VARCHAR(255),
     status ENUM('processando','concluido','erro') NOT NULL DEFAULT 'processando',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (gerado_por) REFERENCES users(id) ON DELETE SET NULL
-);
+    INDEX idx_status (status),
+    INDEX idx_tipo (tipo),
+    CONSTRAINT fk_reports_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reports_gerado_por FOREIGN KEY (gerado_por) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE activity_logs (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -272,9 +298,12 @@ CREATE TABLE activity_logs (
     detalhes JSON,
     ip VARCHAR(45),
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-);
+    INDEX idx_criado_em (criado_em),
+    INDEX idx_entidade (entidade),
+    INDEX idx_acao (acao),
+    CONSTRAINT fk_activity_logs_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_activity_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 10. settings e support_tickets (simplificados)
 CREATE TABLE settings (
@@ -285,9 +314,10 @@ CREATE TABLE settings (
     tipo ENUM('string','number','boolean','json') NOT NULL DEFAULT 'string',
     categoria VARCHAR(50) NOT NULL DEFAULT 'geral',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE KEY (chave, company_id)
-);
+    UNIQUE KEY uk_chave_company (chave, company_id),
+    INDEX idx_categoria (categoria),
+    CONSTRAINT fk_settings_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE support_tickets (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -300,10 +330,12 @@ CREATE TABLE support_tickets (
     atribuido_para INT,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (atribuido_para) REFERENCES users(id) ON DELETE SET NULL
-);
+    INDEX idx_status (status),
+    INDEX idx_prioridade (prioridade),
+    CONSTRAINT fk_support_tickets_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    CONSTRAINT fk_support_tickets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_support_tickets_atribuido FOREIGN KEY (atribuido_para) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 11. VIEWS (mantidas, com colunas essenciais)
 CREATE VIEW v_documents_with_files AS
@@ -370,8 +402,6 @@ GROUP BY c.id, c.nome;
 -- 12. Seed básico (empresas, users, SETTINGS mantidos)
 INSERT INTO companies (nome, nif, email, cidade, pais, estado, plano, limite_veiculos, limite_condutores)
 VALUES ('VeiGest Empresa Padrão', '999999990', 'admin@veigest.com', 'Lisboa', 'Portugal', 'ativa', 'enterprise', 1000, 500);
-
--- OBS: roles/permissions originais migrados para RBAC abaixo (auth_item / auth_item_child / auth_assignment)
 
 -- Inserir roles (auth_item type=1)
 INSERT INTO auth_item (name, type, description, created_at, updated_at) VALUES
@@ -534,7 +564,6 @@ AND name IN (
   'dashboard.read'
 );
 
--- Associar role ao utilizador admin (user id = 1)
 -- criar utilizador admin primeiro
 INSERT INTO users (company_id, nome, email, senha_hash, role, estado)
 VALUES (1, 'Administrador', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'ativo');
@@ -542,96 +571,5 @@ VALUES (1, 'Administrador', 'admin@veigest.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4
 -- atribuir role 'super-admin' ao user_id = 1 (auth_assignment)
 INSERT INTO auth_assignment (item_name, user_id, created_at)
 VALUES ('super-admin', '1', UNIX_TIMESTAMP());
-
--- 13. Triggers simplificados (uso de delimitador)
-DELIMITER $$
-CREATE TRIGGER tr_user_login_update
-AFTER UPDATE ON users
-FOR EACH ROW
-BEGIN
-    IF NEW.ultimo_login IS NOT NULL AND NEW.ultimo_login != OLD.ultimo_login THEN
-        INSERT INTO activity_logs (company_id, user_id, acao, entidade, entidade_id, detalhes, criado_em)
-        VALUES (NEW.company_id, NEW.id, 'login', 'users', NEW.id, JSON_OBJECT('timestamp', NEW.ultimo_login), NOW());
-    END IF;
-END$$
-
-CREATE TRIGGER tr_vehicles_audit_insert
-AFTER INSERT ON vehicles
-FOR EACH ROW
-BEGIN
-    INSERT INTO activity_logs (company_id, acao, entidade, entidade_id, detalhes, criado_em)
-    VALUES (NEW.company_id, 'create', 'vehicles', NEW.id, JSON_OBJECT('matricula',NEW.matricula,'modelo',NEW.modelo), NOW());
-END$$
-
-CREATE TRIGGER tr_vehicles_audit_update
-AFTER UPDATE ON vehicles
-FOR EACH ROW
-BEGIN
-    INSERT INTO activity_logs (company_id, acao, entidade, entidade_id, detalhes, criado_em)
-    VALUES (NEW.company_id, 'update', 'vehicles', NEW.id,
-            JSON_OBJECT('old_km',OLD.quilometragem,'new_km',NEW.quilometragem,'old_estado',OLD.estado,'new_estado',NEW.estado), NOW());
-END$$
-
-CREATE TRIGGER tr_documents_expiration_alert
-AFTER INSERT ON documents
-FOR EACH ROW
-BEGIN
-    IF NEW.data_validade IS NOT NULL THEN
-        INSERT INTO alerts (company_id, tipo, titulo, descricao, data_limite, prioridade, user_id, vehicle_id, document_id, criado_em)
-        VALUES (NEW.company_id, 'documento',
-            CONCAT('Documento ', NEW.tipo, ' próximo do vencimento'),
-            CONCAT('Documento ', COALESCE(NEW.numero_documento,''), ' vence em ', NEW.data_validade),
-            DATE_SUB(NEW.data_validade, INTERVAL NEW.lembrete_dias DAY),
-            CASE WHEN DATEDIFF(NEW.data_validade, CURDATE()) <= 7 THEN 'critica' WHEN DATEDIFF(NEW.data_validade, CURDATE()) <= 30 THEN 'alta' ELSE 'media' END,
-            NEW.driver_id, NEW.vehicle_id, NEW.id, NOW());
-    END IF;
-END$$
-
-CREATE TRIGGER tr_documents_status_update
-BEFORE UPDATE ON documents
-FOR EACH ROW
-BEGIN
-    IF NEW.data_validade IS NOT NULL AND NEW.data_validade < CURDATE() AND OLD.status = 'valido' THEN
-        SET NEW.status = 'expirado';
-    END IF;
-END$$
-
-CREATE TRIGGER tr_fuel_logs_km_validation
-BEFORE INSERT ON fuel_logs
-FOR EACH ROW
-BEGIN
-    DECLARE last_km INT DEFAULT 0;
-    SELECT COALESCE(MAX(km_atual),0) INTO last_km FROM fuel_logs WHERE vehicle_id = NEW.vehicle_id;
-    IF NEW.km_atual IS NOT NULL AND NEW.km_atual < last_km THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Quilometragem não pode ser inferior ao último registo';
-    END IF;
-    -- Atualiza quilometragem do veículo (simples)
-    IF NEW.km_atual IS NOT NULL THEN
-        UPDATE vehicles SET quilometragem = NEW.km_atual, atualizado_em = NOW() WHERE id = NEW.vehicle_id;
-    END IF;
-END$$
-
-CREATE TRIGGER tr_routes_calculate_totals
-BEFORE UPDATE ON routes
-FOR EACH ROW
-BEGIN
-    IF NEW.fim IS NOT NULL AND OLD.fim IS NULL THEN
-        SET NEW.distancia_km = CASE WHEN NEW.km_inicial IS NOT NULL AND NEW.km_final IS NOT NULL THEN NEW.km_final - NEW.km_inicial ELSE NEW.distancia_km END;
-    END IF;
-END$$
-
-CREATE TRIGGER tr_documents_versioning
-BEFORE UPDATE ON documents
-FOR EACH ROW
-BEGIN
-    IF NEW.file_id != OLD.file_id THEN
-        SET NEW.versao = OLD.versao + 1;
-        SET NEW.documento_anterior_id = OLD.id;
-        INSERT INTO activity_logs (company_id, user_id, acao, entidade, entidade_id, detalhes, criado_em)
-        VALUES (NEW.company_id, NEW.criado_por, 'version_update', 'documents', NEW.id,
-                JSON_OBJECT('old_version', OLD.versao, 'new_version', NEW.versao), NOW());
-    END IF;
-END$$
-DELIMITER ;
 
 SET FOREIGN_KEY_CHECKS = 1;

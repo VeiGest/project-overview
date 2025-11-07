@@ -47,6 +47,7 @@
 - **Reportar Avarias**: Descrição e evidências fotográficas
 - **Histórico**: Consulta de viagens anteriores
 - **Notificações**: Alertas push para documentos e tarefas
+- **Documentos do condutor**: Alterar documentos de utilizador.
 
 ### 🔧 API REST
 - **Autenticação JWT**: Login seguro e refresh tokens

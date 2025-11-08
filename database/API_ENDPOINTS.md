@@ -618,12 +618,23 @@ class VehicleController extends ActiveController### 9) Activity Logs
   - Permissão: routes.update
 
 - POST /api/v1/routes/{id}/finish
-  - Encerrar rota (convenção útil)
-  - Corpo: { km_final, destino, fim (ISO) }
-  - Permissão: routes.update
+  - HTTP Verb: POST
+  - Endpoint: /api/v1/routes/{id}/finish
+  - Descrição: Encerrar rota
+  - Parâmetros: path: id
+  - Pedido:
+    { "km_final":120050, "destino":"Porto", "fim":"2025-11-07T10:30:00Z" }
+  - Resposta (JSON):
+    { "id":10, "status":"fechada" }
 
 - DELETE /api/v1/routes/{id}
-  - Permissão: routes.delete
+  - HTTP Verb: DELETE
+  - Endpoint: /api/v1/routes/{id}
+  - Descrição: Remover rota
+  - Parâmetros: path: id
+  - Pedido: N/A
+  - Resposta (JSON):
+    { "success": true }
 
 ---
 
@@ -631,18 +642,32 @@ class VehicleController extends ActiveController### 9) Activity Logs
 Base: /api/v1/gps-entries
 
 - GET /api/v1/gps-entries
-  - Lista pontos GPS (filtros: route_id, time range)
-  - Paginação obrigatória (muito volume)
-  - Permissão: routes.view
+  - HTTP Verb: GET
+  - Endpoint: /api/v1/gps-entries
+  - Descrição: Lista pontos GPS (paginação obrigatória)
+  - Parâmetros: ?route_id, ?from, ?to, ?page, ?pageSize
+  - Pedido: N/A
+  - Resposta (JSON):
+    { "items":[{"id":100,"latitude":38.7223,"longitude":-9.1393,"timestamp":"2025-11-07T08:05:10Z"}], "total":1 }
 
 - GET /api/v1/gps-entries/{id}
-  - Detalhes
-  - Permissão: routes.view
+  - HTTP Verb: GET
+  - Endpoint: /api/v1/gps-entries/{id}
+  - Descrição: Detalhes
+  - Parâmetros: path: id
+  - Pedido: N/A
+  - Resposta (JSON):
+    { "id":100, "latitude":38.7223, "longitude":-9.1393, "timestamp":"2025-11-07T08:05:10Z" }
 
 - POST /api/v1/gps-entries
-  - Inserir ponto GPS (expectativa: usado por mobile/device)
-  - Corpo: { route_id, latitude, longitude, timestamp (ISO), velocidade?, altitude?, precisao? }
-  - Permissão: routes.create (condutor) ou routes.ingest (device)
+  - HTTP Verb: POST
+  - Endpoint: /api/v1/gps-entries
+  - Descrição: Inserir ponto GPS (aceita batch)
+  - Parâmetros: N/A
+  - Pedido (single ou array):
+    { "route_id":10, "latitude":38.7223, "longitude":-9.1393, "timestamp":"2025-11-07T08:05:10Z", "velocidade":60.5 }
+  - Resposta (JSON):
+    { "inserted": 1 }
 
 ---
 
@@ -650,17 +675,32 @@ Base: /api/v1/gps-entries
 Base: /api/v1/rbac
 
 - GET /api/v1/rbac/roles
-  - Lista roles
-  - Permissão: system.config
+  - HTTP Verb: GET
+  - Endpoint: /api/v1/rbac/roles
+  - Descrição: Lista roles
+  - Parâmetros: ?page
+  - Pedido: N/A
+  - Resposta (JSON):
+    { "items":[{"name":"admin"}], "total":1 }
 
 - POST /api/v1/rbac/roles
-  - Criar role
-  - Corpo: { name, description }
-  - Permissão: system.config
+  - HTTP Verb: POST
+  - Endpoint: /api/v1/rbac/roles
+  - Descrição: Criar role
+  - Parâmetros: N/A
+  - Pedido:
+    { "name":"gestor", "description":"Gestor de frota" }
+  - Resposta (JSON):
+    { "name":"gestor" }
 
 - GET /api/v1/rbac/permissions
-  - Lista permissões
-  - Permissão: system.config
+  - HTTP Verb: GET
+  - Endpoint: /api/v1/rbac/permissions
+  - Descrição: Lista permissões
+  - Parâmetros: ?page
+  - Pedido: N/A
+  - Resposta (JSON):
+    { "items":[{"name":"vehicles.view"}], "total":1 }
 
 - POST /api/v1/rbac/assign
   - Atribuir role/permission a user

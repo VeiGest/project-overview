@@ -2,31 +2,31 @@
 
 
 
-**Versão:** 1.0  Versão: 1.0
+**Versão:** 1.0  **Versão:** 1.0  
 
-**Data:** 8 de novembro de 2025  Data: 7 de novembro de 2025
+**Data:** 8 de novembro de 2025  **Data:** 8 de novembro de 2025  
 
-**Padrão:** Yii2 Advanced - API module (api/modules/v1)  Padrão: Yii2 Advanced - API module (api/modules/v1)
+**Padrão:** Yii2 Advanced - API module (api/modules/v1)  **Padrão:** Yii2 Advanced - API module (api/modules/v1)  
 
-**Autenticação:** Bearer token (JWT ou Yii2 auth)  Autenticação: Bearer token (JWT ou Yii2 auth)
+**Autenticação:** Bearer token (JWT ou Yii2 auth)  **Autenticação:** Bearer token (JWT ou Yii2 auth)  
 
-**Formato:** JSON (application/json)  Formato: JSON (application/json)
+**Formato:** JSON (application/json)**Formato:** JSON (application/json)  
 
 
 
-## Resumo das convençõesResumo das convenções
+## Resumo das convenções## Resumo das convenções
 
-- Namespace controllers: `api\modules\v1\controllers`- Namespace controllers: api\modules\v1\controllers
+- Namespace controllers: `api\modules\v1\controllers`- Namespace controllers: `api\modules\v1\controllers`
 
-- Controllers seguem `ActiveController` (ou controllers personalizados quando necessário)- Controllers seguem ActiveController (ou controllers personalizados quando necessário)
+- Controllers seguem `ActiveController` (ou controllers personalizados quando necessário)- Controllers seguem `ActiveController` (ou controllers personalizados quando necessário)
 
-- Rotas base: `/api/v1/<resource>`- Rotas base: /api/v1/<resource>
+- Rotas base: `/api/v1/<resource>`- Rotas base: `/api/v1/<resource>`
 
-- Paginação: padrão `?page=1&pageSize=20`- Paginação: padrão ?page=1&pageSize=20
+- Paginação: padrão `?page=1&pageSize=20`- Paginação: padrão `?page=1&pageSize=20`
 
-- Filtros via query string (ex: `?company_id=1&status=ativo`)- Filtros via query string (ex: ?company_id=1&status=ativo)
+- Filtros via query string (ex: `?company_id=1&status=ativo`)- Filtros via query string (ex: `?company_id=1&status=ativo`)
 
-- Ordenação: `?sort=-created_at` (prefixo - = desc)- Ordenação: ?sort=-created_at (prefixo - = desc)
+- Ordenação: `?sort=-created_at` (prefixo - = desc)- Ordenação: `?sort=-created_at` (prefixo - = desc)
 
 - Datas: ISO 8601 (UTC)- Datas: ISO 8601 (UTC)
 
@@ -34,11 +34,11 @@
 
 
 
-## AutenticaçãoAutenticação
+## Autenticação## Autenticação
 
-- Header: `Authorization: Bearer <token>`- Header: Authorization: Bearer <token>
+- Header: `Authorization: Bearer <token>`- Header: `Authorization: Bearer <token>`
 
-- Endpoints de autenticação (auth): `/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/auth/refresh`- Endpoints de autenticação (auth): /api/v1/auth/login, /api/v1/auth/logout, /api/v1/auth/refresh
+- Endpoints de autenticação (auth): `/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/auth/refresh`- Endpoints de autenticação (auth): `/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/auth/refresh`
 
 
 
@@ -46,291 +46,575 @@
 
 
 
-## 1️⃣ Companies (Empresas)## Endpoints por recurso
+## 1️⃣ Companies (Empresas)## 1️⃣ Companies (Empresas)
 
 
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |Para cada endpoint incluímos: método, URI, parâmetros principais, corpo de request (quando aplicável), exemplo de response (sucesso) e permissões RBAC sugeridas.
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
 
 |-----------|----------|-----------|------------|--------|-----------------|
 
-| GET | `/api/v1/companies` | Lista todas as empresas | `?page=1&pageSize=20&search=texto&estado=ativa&plano=basico` | N/A | ```json<br>{"items": [{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "estado": "ativa", "plano": "basico"}], "_meta": {"totalCount": 1, "pageCount": 1, "currentPage": 1}}``` |---
+| GET | `/api/v1/companies` | Lista todas as empresas | `?page=1&pageSize=20&search=texto&estado=ativa&plano=basico` | N/A | `{"items": [{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "estado": "ativa", "plano": "basico"}], "_meta": {"totalCount": 1, "pageCount": 1, "currentPage": 1}}` || HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |Para cada endpoint incluímos: método, URI, parâmetros principais, corpo de request (quando aplicável), exemplo de response (sucesso) e permissões RBAC sugeridas.
 
-| GET | `/api/v1/companies/{id}` | Detalhes de uma empresa | `id` (path) | N/A | ```json<br>{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "telefone": "+351912345678", "estado": "ativa", "plano": "basico", "configuracoes": {"moeda": "EUR", "timezone": "Europe/Lisbon"}}``` |# API RESTful - VeiGest (v1)
+| GET | `/api/v1/companies/{id}` | Detalhes de uma empresa | `id` (path) | N/A | `{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "telefone": "+351912345678", "estado": "ativa", "plano": "basico", "configuracoes": {"moeda": "EUR", "timezone": "Europe/Lisbon"}}` |
 
-| POST | `/api/v1/companies` | Criar nova empresa | N/A | ```json<br>{"nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "telefone": "+351987654321", "configuracoes": {"moeda": "EUR"}}``` | ```json<br>{"id": 2, "nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "created_at": "2025-11-08T10:00:00Z"}``` |
+| POST | `/api/v1/companies` | Criar nova empresa | N/A | `{"nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "telefone": "+351987654321", "configuracoes": {"moeda": "EUR"}}` | `{"id": 2, "nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "created_at": "2025-11-08T10:00:00Z"}` ||-----------|----------|-----------|------------|--------|-----------------|
 
-| PUT | `/api/v1/companies/{id}` | Atualizar empresa | `id` (path) | ```json<br>{"nome": "Empresa Atualizada", "email": "novo@exemplo.com", "configuracoes": {"moeda": "USD"}}``` | ```json<br>{"id": 2, "nome": "Empresa Atualizada", "email": "novo@exemplo.com", "updated_at": "2025-11-08T10:30:00Z"}``` |Versão: 1.0
+| PUT | `/api/v1/companies/{id}` | Atualizar empresa | `id` (path) | `{"nome": "Empresa Atualizada", "email": "novo@exemplo.com", "configuracoes": {"moeda": "USD"}}` | `{"id": 2, "nome": "Empresa Atualizada", "email": "novo@exemplo.com", "updated_at": "2025-11-08T10:30:00Z"}` |
 
-| DELETE | `/api/v1/companies/{id}` | Remover empresa | `id` (path) | N/A | ```json<br>{"message": "Empresa removida com sucesso"}``` |Data: 7 de novembro de 2025
+| DELETE | `/api/v1/companies/{id}` | Remover empresa | `id` (path) | N/A | `{"message": "Empresa removida com sucesso"}` || GET | `/api/v1/companies` | Lista todas as empresas | `?page=1&pageSize=20&search=texto&estado=ativa&plano=basico` | N/A | ```json<br>{"items": [{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "estado": "ativa", "plano": "basico"}], "_meta": {"totalCount": 1, "pageCount": 1, "currentPage": 1}}``` |---
 
-Padrão: Yii2 Advanced - API module (api/modules/v1)
 
----Autenticação: Bearer token (JWT ou Yii2 auth)
 
-Formato: JSON (application/json)
+---| GET | `/api/v1/companies/{id}` | Detalhes de uma empresa | `id` (path) | N/A | ```json<br>{"id": 1, "nome": "VeiGest Demo", "nif": "123456789", "email": "admin@veigest.com", "telefone": "+351912345678", "estado": "ativa", "plano": "basico", "configuracoes": {"moeda": "EUR", "timezone": "Europe/Lisbon"}}``` |# API RESTful - VeiGest (v1)
 
-## 2️⃣ Users (Utilizadores)
 
-Resumo das convenções
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |- Namespace controllers: api\modules\v1\controllers
+## 2️⃣ Users (Utilizadores)| POST | `/api/v1/companies` | Criar nova empresa | N/A | ```json<br>{"nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "telefone": "+351987654321", "configuracoes": {"moeda": "EUR"}}``` | ```json<br>{"id": 2, "nome": "Nova Empresa", "nif": "987654321", "email": "empresa@exemplo.com", "created_at": "2025-11-08T10:00:00Z"}``` |
 
-|-----------|----------|-----------|------------|--------|-----------------|- Controllers seguem ActiveController (ou controllers personalizados quando necessário)
 
-| GET | `/api/v1/users` | Lista utilizadores | `?company_id=1&page=1&pageSize=20&estado=ativo&search=nome` | N/A | ```json<br>{"items": [{"id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31"}], "_meta": {"totalCount": 1}}``` |- Rotas base: /api/v1/<resource>
 
-| GET | `/api/v1/users/{id}` | Detalhes do utilizador | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31", "foto": "uploads/users/joao.jpg", "created_at": "2025-01-01T00:00:00Z"}``` |- Paginação: padrão ?page=1&pageSize=20
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) || PUT | `/api/v1/companies/{id}` | Atualizar empresa | `id` (path) | ```json<br>{"nome": "Empresa Atualizada", "email": "novo@exemplo.com", "configuracoes": {"moeda": "USD"}}``` | ```json<br>{"id": 2, "nome": "Empresa Atualizada", "email": "novo@exemplo.com", "updated_at": "2025-11-08T10:30:00Z"}``` |Versão: 1.0
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/users` | Lista utilizadores | `?company_id=1&page=1&pageSize=20&estado=ativo&search=nome` | N/A | `{"items": [{"id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31"}], "_meta": {"totalCount": 1}}` || DELETE | `/api/v1/companies/{id}` | Remover empresa | `id` (path) | N/A | ```json<br>{"message": "Empresa removida com sucesso"}``` |Data: 7 de novembro de 2025
+
+| GET | `/api/v1/users/{id}` | Detalhes do utilizador | `id` (path) | N/A | `{"id": 1, "company_id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31", "foto": "uploads/users/joao.jpg", "created_at": "2025-01-01T00:00:00Z"}` |
+
+| POST | `/api/v1/users` | Criar utilizador | N/A | `{"company_id": 1, "nome": "Maria Santos", "email": "maria@veigest.com", "senha": "minhasenha123", "telefone": "+351987654321", "numero_carta": "PT987654321", "validade_carta": "2027-06-30"}` | `{"id": 2, "nome": "Maria Santos", "email": "maria@veigest.com", "estado": "ativo", "created_at": "2025-11-08T10:00:00Z"}` |Padrão: Yii2 Advanced - API module (api/modules/v1)
+
+| PUT | `/api/v1/users/{id}` | Atualizar utilizador | `id` (path) | `{"nome": "Maria Santos Silva", "telefone": "+351999888777", "validade_carta": "2028-06-30"}` | `{"id": 2, "nome": "Maria Santos Silva", "telefone": "+351999888777", "updated_at": "2025-11-08T10:30:00Z"}` |
+
+| PATCH | `/api/v1/users/{id}/password` | Alterar senha | `id` (path) | `{"old_password": "senhaantiga", "new_password": "novaSenha123"}` | `{"message": "Senha alterada com sucesso"}` |---Autenticação: Bearer token (JWT ou Yii2 auth)
+
+| POST | `/api/v1/users/{id}/assign-role` | Atribuir role | `id` (path) | `{"role": "gestor"}` | `{"message": "Role 'gestor' atribuída ao utilizador"}` |
+
+| DELETE | `/api/v1/users/{id}` | Remover utilizador | `id` (path) | N/A | `{"message": "Utilizador removido com sucesso"}` |Formato: JSON (application/json)
+
+
+
+---## 2️⃣ Users (Utilizadores)
+
+
+
+## 3️⃣ Vehicles (Veículos)Resumo das convenções
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) || HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |- Namespace controllers: api\modules\v1\controllers
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/vehicles` | Lista veículos | `?company_id=1&condutor_id=2&estado=ativo&page=1` | N/A | `{"items": [{"id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2}], "_meta": {"totalCount": 1}}` ||-----------|----------|-----------|------------|--------|-----------------|- Controllers seguem ActiveController (ou controllers personalizados quando necessário)
+
+| GET | `/api/v1/vehicles/{id}` | Detalhes do veículo | `id` (path) | N/A | `{"id": 1, "company_id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2, "foto": "uploads/vehicles/aa11bb.jpg", "created_at": "2025-01-01T00:00:00Z"}` |
+
+| POST | `/api/v1/vehicles` | Criar veículo | N/A | `{"company_id": 1, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "ano": 2022, "tipo_combustivel": "hibrido", "quilometragem": 15000, "condutor_id": 3}` | `{"id": 2, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "estado": "ativo", "created_at": "2025-11-08T10:00:00Z"}` || GET | `/api/v1/users` | Lista utilizadores | `?company_id=1&page=1&pageSize=20&estado=ativo&search=nome` | N/A | ```json<br>{"items": [{"id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31"}], "_meta": {"totalCount": 1}}``` |- Rotas base: /api/v1/<resource>
+
+| PUT | `/api/v1/vehicles/{id}` | Atualizar veículo | `id` (path) | `{"quilometragem": 52000, "estado": "manutencao"}` | `{"id": 1, "quilometragem": 52000, "estado": "manutencao", "updated_at": "2025-11-08T10:30:00Z"}` |
+
+| POST | `/api/v1/vehicles/{id}/assign-driver` | Atribuir condutor | `id` (path) | `{"driver_id": 3}` | `{"message": "Condutor atribuído ao veículo com sucesso"}` || GET | `/api/v1/users/{id}` | Detalhes do utilizador | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "nome": "João Silva", "email": "joao@veigest.com", "telefone": "+351912345678", "estado": "ativo", "numero_carta": "PT123456789", "validade_carta": "2026-12-31", "foto": "uploads/users/joao.jpg", "created_at": "2025-01-01T00:00:00Z"}``` |- Paginação: padrão ?page=1&pageSize=20
+
+| DELETE | `/api/v1/vehicles/{id}` | Remover veículo | `id` (path) | N/A | `{"message": "Veículo removido com sucesso"}` |
 
 | POST | `/api/v1/users` | Criar utilizador | N/A | ```json<br>{"company_id": 1, "nome": "Maria Santos", "email": "maria@veigest.com", "senha": "minhasenha123", "telefone": "+351987654321", "numero_carta": "PT987654321", "validade_carta": "2027-06-30"}``` | ```json<br>{"id": 2, "nome": "Maria Santos", "email": "maria@veigest.com", "estado": "ativo", "created_at": "2025-11-08T10:00:00Z"}``` |- Filtros via query string (ex: ?company_id=1&status=ativo)
 
+---
+
 | PUT | `/api/v1/users/{id}` | Atualizar utilizador | `id` (path) | ```json<br>{"nome": "Maria Santos Silva", "telefone": "+351999888777", "validade_carta": "2028-06-30"}``` | ```json<br>{"id": 2, "nome": "Maria Santos Silva", "telefone": "+351999888777", "updated_at": "2025-11-08T10:30:00Z"}``` |- Ordenação: ?sort=-created_at (prefixo - = desc)
+
+## 4️⃣ Maintenances (Manutenções)
 
 | PATCH | `/api/v1/users/{id}/password` | Alterar senha | `id` (path) | ```json<br>{"old_password": "senhaantiga", "new_password": "novaSenha123"}``` | ```json<br>{"message": "Senha alterada com sucesso"}``` |- Datas: ISO 8601 (UTC)
 
-| POST | `/api/v1/users/{id}/assign-role` | Atribuir role | `id` (path) | ```json<br>{"role": "gestor"}``` | ```json<br>{"message": "Role 'gestor' atribuída ao utilizador"}``` |- Permissões: controladas por RBAC (auth_item/auth_assignment)
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
 
-| DELETE | `/api/v1/users/{id}` | Remover utilizador | `id` (path) | N/A | ```json<br>{"message": "Utilizador removido com sucesso"}``` |
+|-----------|----------|-----------|------------|--------|-----------------|| POST | `/api/v1/users/{id}/assign-role` | Atribuir role | `id` (path) | ```json<br>{"role": "gestor"}``` | ```json<br>{"message": "Role 'gestor' atribuída ao utilizador"}``` |- Permissões: controladas por RBAC (auth_item/auth_assignment)
 
-Autenticação
+| GET | `/api/v1/maintenances` | Lista manutenções | `?vehicle_id=1&company_id=1&page=1` | N/A | `{"items": [{"id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa"}], "_meta": {"totalCount": 1}}` |
+
+| GET | `/api/v1/maintenances/{id}` | Detalhes da manutenção | `id` (path) | N/A | `{"id": 1, "company_id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa", "created_at": "2025-11-01T14:30:00Z"}` || DELETE | `/api/v1/users/{id}` | Remover utilizador | `id` (path) | N/A | ```json<br>{"message": "Utilizador removido com sucesso"}``` |
+
+| POST | `/api/v1/maintenances` | Criar manutenção | N/A | `{"company_id": 1, "vehicle_id": 1, "tipo": "Mudança de óleo", "descricao": "Troca do óleo do motor", "data": "2025-11-08", "custo": 75.00, "km_registro": 52000, "proxima_data": "2026-05-08", "oficina": "Oficina Central"}` | `{"id": 2, "vehicle_id": 1, "tipo": "Mudança de óleo", "data": "2025-11-08", "custo": 75.00, "created_at": "2025-11-08T10:00:00Z"}` |
+
+| PUT | `/api/v1/maintenances/{id}` | Atualizar manutenção | `id` (path) | `{"custo": 280.00, "proxima_data": "2026-12-01"}` | `{"id": 1, "custo": 280.00, "proxima_data": "2026-12-01", "updated_at": "2025-11-08T10:30:00Z"}` |Autenticação
+
+| DELETE | `/api/v1/maintenances/{id}` | Remover manutenção | `id` (path) | N/A | `{"message": "Manutenção removida com sucesso"}` |
 
 ---- Header: Authorization: Bearer <token>
 
+---
+
 - Endpoints de autenticação (auth): /api/v1/auth/login, /api/v1/auth/logout, /api/v1/auth/refresh
-
-## 3️⃣ Vehicles (Veículos)
-
----
-
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
-
-|-----------|----------|-----------|------------|--------|-----------------|## Endpoints por recurso
-
-| GET | `/api/v1/vehicles` | Lista veículos | `?company_id=1&condutor_id=2&estado=ativo&page=1` | N/A | ```json<br>{"items": [{"id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2}], "_meta": {"totalCount": 1}}``` |
-
-| GET | `/api/v1/vehicles/{id}` | Detalhes do veículo | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2, "foto": "uploads/vehicles/aa11bb.jpg", "created_at": "2025-01-01T00:00:00Z"}``` |Para cada endpoint incluímos: método, URI, parâmetros principais, corpo de request (quando aplicável), exemplo de response (sucesso) e permissões RBAC sugeridas.
-
-| POST | `/api/v1/vehicles` | Criar veículo | N/A | ```json<br>{"company_id": 1, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "ano": 2022, "tipo_combustivel": "hibrido", "quilometragem": 15000, "condutor_id": 3}``` | ```json<br>{"id": 2, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "estado": "ativo", "created_at": "2025-11-08T10:00:00Z"}``` |
-
-| PUT | `/api/v1/vehicles/{id}` | Atualizar veículo | `id` (path) | ```json<br>{"quilometragem": 52000, "estado": "manutencao"}``` | ```json<br>{"id": 1, "quilometragem": 52000, "estado": "manutencao", "updated_at": "2025-11-08T10:30:00Z"}``` |---
-
-| POST | `/api/v1/vehicles/{id}/assign-driver` | Atribuir condutor | `id` (path) | ```json<br>{"driver_id": 3}``` | ```json<br>{"message": "Condutor atribuído ao veículo com sucesso"}``` |
-
-| DELETE | `/api/v1/vehicles/{id}` | Remover veículo | `id` (path) | N/A | ```json<br>{"message": "Veículo removido com sucesso"}``` |### 1) Companies
-
-Base: /api/v1/companies
-
----
-
-- GET /api/v1/companies
-
-## 4️⃣ Maintenances (Manutenções)  - Descrição: Lista empresas (admin global / super-admin)
-
-  - Query: ?page, ?pageSize, ?search, ?estado, ?plano
-
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: companies.view
-
-|-----------|----------|-----------|------------|--------|-----------------|
-
-| GET | `/api/v1/maintenances` | Lista manutenções | `?vehicle_id=1&company_id=1&page=1` | N/A | ```json<br>{"items": [{"id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa"}], "_meta": {"totalCount": 1}}``` |- GET /api/v1/companies/{id}
-
-| GET | `/api/v1/maintenances/{id}` | Detalhes da manutenção | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa", "created_at": "2025-11-01T14:30:00Z"}``` |  - Descrição: Detalhes da empresa
-
-| POST | `/api/v1/maintenances` | Criar manutenção | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "tipo": "Mudança de óleo", "descricao": "Troca do óleo do motor", "data": "2025-11-08", "custo": 75.00, "km_registro": 52000, "proxima_data": "2026-05-08", "oficina": "Oficina Central"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "tipo": "Mudança de óleo", "data": "2025-11-08", "custo": 75.00, "created_at": "2025-11-08T10:00:00Z"}``` |  - Permissão: companies.view
-
-| PUT | `/api/v1/maintenances/{id}` | Atualizar manutenção | `id` (path) | ```json<br>{"custo": 280.00, "proxima_data": "2026-12-01"}``` | ```json<br>{"id": 1, "custo": 280.00, "proxima_data": "2026-12-01", "updated_at": "2025-11-08T10:30:00Z"}``` |
-
-| DELETE | `/api/v1/maintenances/{id}` | Remover manutenção | `id` (path) | N/A | ```json<br>{"message": "Manutenção removida com sucesso"}``` |- POST /api/v1/companies
-
-  - Descrição: Criar empresa
-
----  - Corpo: { nome, nif, email, telefone, configuracoes }
-
-  - Permissão: companies.manage
 
 ## 5️⃣ Files (Ficheiros)
 
+## 3️⃣ Vehicles (Veículos)
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+
+|-----------|----------|-----------|------------|--------|-----------------|---
+
+| GET | `/api/v1/files` | Lista ficheiros | `?company_id=1&page=1&pageSize=20` | N/A | `{"items": [{"id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}` |
+
+| GET | `/api/v1/files/{id}` | Download/metadados | `id` (path) | N/A | `{"id": 1, "company_id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "download_url": "/api/v1/files/1/download", "created_at": "2025-11-08T10:00:00Z"}` || HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+
+| POST | `/api/v1/files` | Upload ficheiro | `company_id` (form), `uploaded_by` (form) | Multipart Form: `file` (binary), `company_id=1`, `uploaded_by=1` | `{"id": 2, "nome_original": "inspecao_2025.pdf", "tamanho": 2048576, "caminho": "uploads/2025/11/inspecao_2025.pdf", "created_at": "2025-11-08T10:30:00Z"}` |
+
+| DELETE | `/api/v1/files/{id}` | Remover ficheiro | `id` (path) | N/A | `{"message": "Ficheiro removido com sucesso"}` ||-----------|----------|-----------|------------|--------|-----------------|## Endpoints por recurso
+
+
+
+---| GET | `/api/v1/vehicles` | Lista veículos | `?company_id=1&condutor_id=2&estado=ativo&page=1` | N/A | ```json<br>{"items": [{"id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2}], "_meta": {"totalCount": 1}}``` |
+
+
+
+## 6️⃣ Documents (Documentos)| GET | `/api/v1/vehicles/{id}` | Detalhes do veículo | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla", "ano": 2020, "tipo_combustivel": "gasolina", "quilometragem": 50000, "estado": "ativo", "condutor_id": 2, "foto": "uploads/vehicles/aa11bb.jpg", "created_at": "2025-01-01T00:00:00Z"}``` |Para cada endpoint incluímos: método, URI, parâmetros principais, corpo de request (quando aplicável), exemplo de response (sucesso) e permissões RBAC sugeridas.
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) || POST | `/api/v1/vehicles` | Criar veículo | N/A | ```json<br>{"company_id": 1, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "ano": 2022, "tipo_combustivel": "hibrido", "quilometragem": 15000, "condutor_id": 3}``` | ```json<br>{"id": 2, "matricula": "CC-22-DD", "marca": "Honda", "modelo": "Civic", "estado": "ativo", "created_at": "2025-11-08T10:00:00Z"}``` |
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/documents` | Lista documentos | `?company_id=1&vehicle_id=1&driver_id=2&tipo=seguro&status=valido` | N/A | `{"items": [{"id": 1, "file_id": 1, "vehicle_id": 1, "driver_id": null, "tipo": "seguro", "data_validade": "2026-12-31", "status": "valido", "notas": "Seguro contra terceiros"}], "_meta": {"totalCount": 1}}` || PUT | `/api/v1/vehicles/{id}` | Atualizar veículo | `id` (path) | ```json<br>{"quilometragem": 52000, "estado": "manutencao"}``` | ```json<br>{"id": 1, "quilometragem": 52000, "estado": "manutencao", "updated_at": "2025-11-08T10:30:00Z"}``` |---
+
+| GET | `/api/v1/documents/{id}` | Detalhes do documento | `id` (path) | N/A | `{"id": 1, "company_id": 1, "file_id": 1, "vehicle_id": 1, "driver_id": null, "tipo": "seguro", "data_validade": "2026-12-31", "status": "valido", "notas": "Seguro contra terceiros", "file": {"nome_original": "seguro_veiculo.pdf", "download_url": "/api/v1/files/1/download"}, "created_at": "2025-11-08T10:00:00Z"}` |
+
+| POST | `/api/v1/documents` | Criar documento | N/A | `{"company_id": 1, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "notas": "Inspeção periódica obrigatória"}` | `{"id": 2, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "status": "valido", "created_at": "2025-11-08T10:30:00Z"}` || POST | `/api/v1/vehicles/{id}/assign-driver` | Atribuir condutor | `id` (path) | ```json<br>{"driver_id": 3}``` | ```json<br>{"message": "Condutor atribuído ao veículo com sucesso"}``` |
+
+| PUT | `/api/v1/documents/{id}` | Atualizar documento | `id` (path) | `{"data_validade": "2027-01-15", "notas": "Renovação antecipada"}` | `{"id": 2, "data_validade": "2027-01-15", "notas": "Renovação antecipada", "updated_at": "2025-11-08T11:00:00Z"}` |
+
+| DELETE | `/api/v1/documents/{id}` | Remover documento | `id` (path) | N/A | `{"message": "Documento removido com sucesso"}` || DELETE | `/api/v1/vehicles/{id}` | Remover veículo | `id` (path) | N/A | ```json<br>{"message": "Veículo removido com sucesso"}``` |### 1) Companies
+
+
+
+---Base: /api/v1/companies
+
+
+
+## 7️⃣ Fuel Logs (Registos de Combustível)---
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |- GET /api/v1/companies
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/fuel-logs` | Lista registos de combustível | `?company_id=1&vehicle_id=1&driver_id=2&data_inicio=2025-11-01&data_fim=2025-11-08` | N/A | `{"items": [{"id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-05", "litros": 45.5, "valor": 68.25, "preco_litro": 1.50, "km_atual": 51500, "notas": "Posto Galp A1"}], "_meta": {"totalCount": 1}}` |## 4️⃣ Maintenances (Manutenções)  - Descrição: Lista empresas (admin global / super-admin)
+
+| GET | `/api/v1/fuel-logs/{id}` | Detalhes do registo | `id` (path) | N/A | `{"id": 1, "company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-05", "litros": 45.5, "valor": 68.25, "preco_litro": 1.50, "km_atual": 51500, "notas": "Posto Galp A1", "vehicle": {"matricula": "AA-11-BB"}, "driver": {"nome": "João Silva"}, "created_at": "2025-11-05T16:30:00Z"}` |
+
+| POST | `/api/v1/fuel-logs` | Criar registo de combustível | N/A | `{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "km_atual": 52000, "notas": "Posto BP Cascais"}` | `{"id": 2, "vehicle_id": 1, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "preco_litro": 1.50, "created_at": "2025-11-08T11:00:00Z"}` |  - Query: ?page, ?pageSize, ?search, ?estado, ?plano
+
+| PUT | `/api/v1/fuel-logs/{id}` | Atualizar registo | `id` (path) | `{"valor": 72.50, "notas": "Posto BP Cascais - Desconto cliente"}` | `{"id": 2, "valor": 72.50, "preco_litro": 1.45, "notas": "Posto BP Cascais - Desconto cliente", "updated_at": "2025-11-08T11:15:00Z"}` |
+
+| DELETE | `/api/v1/fuel-logs/{id}` | Remover registo | `id` (path) | N/A | `{"message": "Registo de combustível removido com sucesso"}` || HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: companies.view
+
+
+
+---|-----------|----------|-----------|------------|--------|-----------------|
+
+
+
+## 8️⃣ Alerts (Alertas)| GET | `/api/v1/maintenances` | Lista manutenções | `?vehicle_id=1&company_id=1&page=1` | N/A | ```json<br>{"items": [{"id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa"}], "_meta": {"totalCount": 1}}``` |- GET /api/v1/companies/{id}
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) || GET | `/api/v1/maintenances/{id}` | Detalhes da manutenção | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "vehicle_id": 1, "tipo": "Revisão", "descricao": "Revisão dos 50.000 km", "data": "2025-11-01", "custo": 250.50, "km_registro": 50000, "proxima_data": "2026-11-01", "oficina": "AutoCenter Lisboa", "created_at": "2025-11-01T14:30:00Z"}``` |  - Descrição: Detalhes da empresa
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/alerts` | Lista alertas | `?company_id=1&tipo=documento&status=ativo&prioridade=alta` | N/A | `{"items": [{"id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1}, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}` || POST | `/api/v1/maintenances` | Criar manutenção | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "tipo": "Mudança de óleo", "descricao": "Troca do óleo do motor", "data": "2025-11-08", "custo": 75.00, "km_registro": 52000, "proxima_data": "2026-05-08", "oficina": "Oficina Central"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "tipo": "Mudança de óleo", "data": "2025-11-08", "custo": 75.00, "created_at": "2025-11-08T10:00:00Z"}``` |  - Permissão: companies.view
+
+| GET | `/api/v1/alerts/{id}` | Detalhes do alerta | `id` (path) | N/A | `{"id": 1, "company_id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1, "data_validade": "2025-12-08"}, "created_at": "2025-11-08T10:00:00Z", "resolvido_em": null}` |
+
+| POST | `/api/v1/alerts` | Criar alerta manual | N/A | `{"company_id": 1, "tipo": "manutencao", "titulo": "Manutenção agendada", "descricao": "Revisão agendada para veículo CC-22-DD", "prioridade": "media", "detalhes": {"vehicle_id": 2, "data_agendada": "2025-11-15"}}` | `{"id": 2, "tipo": "manutencao", "titulo": "Manutenção agendada", "status": "ativo", "created_at": "2025-11-08T11:00:00Z"}` || PUT | `/api/v1/maintenances/{id}` | Atualizar manutenção | `id` (path) | ```json<br>{"custo": 280.00, "proxima_data": "2026-12-01"}``` | ```json<br>{"id": 1, "custo": 280.00, "proxima_data": "2026-12-01", "updated_at": "2025-11-08T10:30:00Z"}``` |
+
+| PUT | `/api/v1/alerts/{id}` | Atualizar alerta | `id` (path) | `{"status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z"}` | `{"id": 1, "status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z", "updated_at": "2025-11-08T11:30:00Z"}` |
+
+| DELETE | `/api/v1/alerts/{id}` | Remover alerta | `id` (path) | N/A | `{"message": "Alerta removido com sucesso"}` || DELETE | `/api/v1/maintenances/{id}` | Remover manutenção | `id` (path) | N/A | ```json<br>{"message": "Manutenção removida com sucesso"}``` |- POST /api/v1/companies
+
+
+
+---  - Descrição: Criar empresa
+
+
+
+## 9️⃣ Activity Logs (Logs de Atividade)---  - Corpo: { nome, nif, email, telefone, configuracoes }
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: companies.manage
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/activity-logs` | Lista logs de atividade | `?company_id=1&user_id=2&entidade=vehicle&page=1&pageSize=50` | N/A | `{"items": [{"id": 1, "user_id": 2, "acao": "CREATE", "entidade": "vehicle", "entidade_id": 1, "detalhes": {"matricula": "AA-11-BB", "marca": "Toyota"}, "ip": "192.168.1.100", "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}` |## 5️⃣ Files (Ficheiros)
+
+| GET | `/api/v1/activity-logs/{id}` | Detalhes do log | `id` (path) | N/A | `{"id": 1, "company_id": 1, "user_id": 2, "acao": "CREATE", "entidade": "vehicle", "entidade_id": 1, "detalhes": {"matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla"}, "ip": "192.168.1.100", "user": {"nome": "João Silva"}, "created_at": "2025-11-08T10:00:00Z"}` |
+
 - PUT /api/v1/companies/{id}
+
+---
 
 | HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Descrição: Atualizar empresa
 
+## 🔟 Routes (Rotas)
+
 |-----------|----------|-----------|------------|--------|-----------------|  - Corpo: { nome?, nif?, email?, configuracoes? }
 
-| GET | `/api/v1/files` | Lista ficheiros | `?company_id=1&page=1&pageSize=20` | N/A | ```json<br>{"items": [{"id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}``` |  - Permissão: companies.manage
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
 
-| GET | `/api/v1/files/{id}` | Download/metadados | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "download_url": "/api/v1/files/1/download", "created_at": "2025-11-08T10:00:00Z"}``` |
+|-----------|----------|-----------|------------|--------|-----------------|| GET | `/api/v1/files` | Lista ficheiros | `?company_id=1&page=1&pageSize=20` | N/A | ```json<br>{"items": [{"id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}``` |  - Permissão: companies.manage
 
-| POST | `/api/v1/files` | Upload ficheiro | `company_id` (form), `uploaded_by` (form) | **Multipart Form Data:**<br>`file` (binary)<br>`company_id=1`<br>`uploaded_by=1` | ```json<br>{"id": 2, "nome_original": "inspecao_2025.pdf", "tamanho": 2048576, "caminho": "uploads/2025/11/inspecao_2025.pdf", "created_at": "2025-11-08T10:30:00Z"}``` |- DELETE /api/v1/companies/{id}
+| GET | `/api/v1/routes` | Lista rotas | `?company_id=1&vehicle_id=1&driver_id=2&status=em_andamento&data_inicio=2025-11-01` | N/A | `{"items": [{"id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T08:00:00Z", "fim": "2025-11-08T10:30:00Z", "km_inicial": 52000, "km_final": 52150, "origem": "Lisboa", "destino": "Porto", "status": "concluida", "distancia_km": 150.5}], "_meta": {"totalCount": 1}}` |
 
-| DELETE | `/api/v1/files/{id}` | Remover ficheiro | `id` (path) | N/A | ```json<br>{"message": "Ficheiro removido com sucesso"}``` |  - Descrição: Remover empresa
+| GET | `/api/v1/routes/{id}` | Detalhes da rota | `id` (path) | N/A | `{"id": 1, "company_id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T08:00:00Z", "fim": "2025-11-08T10:30:00Z", "km_inicial": 52000, "km_final": 52150, "origem": "Lisboa", "destino": "Porto", "distancia_km": 150.5, "status": "concluida", "notas": "Viagem sem incidentes", "vehicle": {"matricula": "AA-11-BB"}, "driver": {"nome": "João Silva"}, "total_gps_points": 180, "created_at": "2025-11-08T08:00:00Z"}` || GET | `/api/v1/files/{id}` | Download/metadados | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "nome_original": "seguro_veiculo.pdf", "tamanho": 1024576, "caminho": "uploads/2025/11/seguro_veiculo.pdf", "uploaded_by": 1, "download_url": "/api/v1/files/1/download", "created_at": "2025-11-08T10:00:00Z"}``` |
 
-  - Permissão: companies.manage
+| POST | `/api/v1/routes` | Iniciar nova rota | N/A | `{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto"}` | `{"id": 2, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto", "status": "em_andamento", "created_at": "2025-11-08T14:00:00Z"}` |
 
----
+| PUT | `/api/v1/routes/{id}` | Atualizar rota | `id` (path) | `{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida"}` | `{"id": 2, "km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida", "updated_at": "2025-11-08T16:00:00Z"}` || POST | `/api/v1/files` | Upload ficheiro | `company_id` (form), `uploaded_by` (form) | **Multipart Form Data:**<br>`file` (binary)<br>`company_id=1`<br>`uploaded_by=1` | ```json<br>{"id": 2, "nome_original": "inspecao_2025.pdf", "tamanho": 2048576, "caminho": "uploads/2025/11/inspecao_2025.pdf", "created_at": "2025-11-08T10:30:00Z"}``` |- DELETE /api/v1/companies/{id}
 
----
+| POST | `/api/v1/routes/{id}/finish` | Encerrar rota | `id` (path) | `{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z"}` | `{"message": "Rota encerrada com sucesso", "route": {"id": 2, "status": "concluida", "fim": "2025-11-08T16:00:00Z"}}` |
 
-## 6️⃣ Documents (Documentos)
+| DELETE | `/api/v1/routes/{id}` | Remover rota | `id` (path) | N/A | `{"message": "Rota removida com sucesso"}` || DELETE | `/api/v1/files/{id}` | Remover ficheiro | `id` (path) | N/A | ```json<br>{"message": "Ficheiro removido com sucesso"}``` |  - Descrição: Remover empresa
 
-### 2) Users
+
+
+---  - Permissão: companies.manage
+
+
+
+## 1️⃣1️⃣ GPS Entries (Pontos GPS)---
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |---
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| GET | `/api/v1/gps-entries` | Lista pontos GPS | `?route_id=1&timestamp_inicio=2025-11-08T08:00:00Z&timestamp_fim=2025-11-08T10:30:00Z&page=1&pageSize=100` | N/A | `{"items": [{"id": 1, "route_id": 1, "latitude": 38.7223, "longitude": -9.1393, "timestamp": "2025-11-08T08:15:00Z", "velocidade": 60.5, "altitude": 150.2, "precisao": 5.0}], "_meta": {"totalCount": 180, "pageCount": 2}}` |## 6️⃣ Documents (Documentos)
+
+| GET | `/api/v1/gps-entries/{id}` | Detalhes do ponto GPS | `id` (path) | N/A | `{"id": 1, "route_id": 1, "latitude": 38.7223, "longitude": -9.1393, "timestamp": "2025-11-08T08:15:00Z", "velocidade": 60.5, "altitude": 150.2, "precisao": 5.0, "route": {"id": 1, "vehicle_id": 1, "origem": "Lisboa"}}` |
+
+| POST | `/api/v1/gps-entries` | Inserir ponto GPS | N/A | `{"route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0, "altitude": 200.5, "precisao": 3.0}` | `{"id": 181, "route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}` |### 2) Users
+
+| POST | `/api/v1/gps-entries/batch` | Inserir múltiplos pontos GPS | N/A | `{"route_id": 2, "points": [{"latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}, {"latitude": 40.2100, "longitude": -8.4200, "timestamp": "2025-11-08T14:31:00Z", "velocidade": 75.0}]}` | `{"message": "2 pontos GPS inseridos com sucesso", "inserted_ids": [182, 183]}` |
 
 | HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |Base: /api/v1/users
 
+---
+
 |-----------|----------|-----------|------------|--------|-----------------|
+
+## 1️⃣2️⃣ RBAC Management
 
 | GET | `/api/v1/documents` | Lista documentos | `?company_id=1&vehicle_id=1&driver_id=2&tipo=seguro&status=valido` | N/A | ```json<br>{"items": [{"id": 1, "file_id": 1, "vehicle_id": 1, "driver_id": null, "tipo": "seguro", "data_validade": "2026-12-31", "status": "valido", "notas": "Seguro contra terceiros"}], "_meta": {"totalCount": 1}}``` |- GET /api/v1/users
 
-| GET | `/api/v1/documents/{id}` | Detalhes do documento | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "file_id": 1, "vehicle_id": 1, "driver_id": null, "tipo": "seguro", "data_validade": "2026-12-31", "status": "valido", "notas": "Seguro contra terceiros", "file": {"nome_original": "seguro_veiculo.pdf", "download_url": "/api/v1/files/1/download"}, "created_at": "2025-11-08T10:00:00Z"}``` |  - Lista utilizadores (filtro por company_id)
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
 
-| POST | `/api/v1/documents` | Criar documento | N/A | ```json<br>{"company_id": 1, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "notas": "Inspeção periódica obrigatória"}``` | ```json<br>{"id": 2, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "status": "valido", "created_at": "2025-11-08T10:30:00Z"}``` |  - Permissão: users.view
+|-----------|----------|-----------|------------|--------|-----------------|| GET | `/api/v1/documents/{id}` | Detalhes do documento | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "file_id": 1, "vehicle_id": 1, "driver_id": null, "tipo": "seguro", "data_validade": "2026-12-31", "status": "valido", "notas": "Seguro contra terceiros", "file": {"nome_original": "seguro_veiculo.pdf", "download_url": "/api/v1/files/1/download"}, "created_at": "2025-11-08T10:00:00Z"}``` |  - Lista utilizadores (filtro por company_id)
 
-| PUT | `/api/v1/documents/{id}` | Atualizar documento | `id` (path) | ```json<br>{"data_validade": "2027-01-15", "notas": "Renovação antecipada"}``` | ```json<br>{"id": 2, "data_validade": "2027-01-15", "notas": "Renovação antecipada", "updated_at": "2025-11-08T11:00:00Z"}``` |
+| GET | `/api/v1/rbac/roles` | Lista roles | N/A | N/A | `{"items": [{"name": "super-admin", "description": "Super Administrador - Acesso Total", "type": 1}, {"name": "admin", "description": "Administrador", "type": 1}, {"name": "gestor", "description": "Gestor de Frota", "type": 1}]}` |
 
-| DELETE | `/api/v1/documents/{id}` | Remover documento | `id` (path) | N/A | ```json<br>{"message": "Documento removido com sucesso"}``` |- GET /api/v1/users/{id}
+| GET | `/api/v1/rbac/permissions` | Lista permissões | N/A | N/A | `{"items": [{"name": "companies.view", "description": "Ver empresas", "type": 2}, {"name": "vehicles.create", "description": "Criar veículos", "type": 2}]}` || POST | `/api/v1/documents` | Criar documento | N/A | ```json<br>{"company_id": 1, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "notas": "Inspeção periódica obrigatória"}``` | ```json<br>{"id": 2, "file_id": 2, "vehicle_id": 1, "tipo": "inspecao", "data_validade": "2026-11-08", "status": "valido", "created_at": "2025-11-08T10:30:00Z"}``` |  - Permissão: users.view
 
-  - Detalhes do utilizador
+| GET | `/api/v1/rbac/user-assignments/{user_id}` | Lista atribuições do utilizador | `user_id` (path) | N/A | `{"user_id": "2", "assignments": [{"item_name": "gestor", "created_at": 1699459200}]}` |
 
----  - Permissão: users.view
+| POST | `/api/v1/rbac/roles` | Criar role | N/A | `{"name": "tecnico", "description": "Técnico de Manutenção"}` | `{"name": "tecnico", "description": "Técnico de Manutenção", "type": 1, "created_at": 1699545600}` || PUT | `/api/v1/documents/{id}` | Atualizar documento | `id` (path) | ```json<br>{"data_validade": "2027-01-15", "notas": "Renovação antecipada"}``` | ```json<br>{"id": 2, "data_validade": "2027-01-15", "notas": "Renovação antecipada", "updated_at": "2025-11-08T11:00:00Z"}``` |
+
+| POST | `/api/v1/rbac/assign` | Atribuir role/permission | N/A | `{"item_name": "gestor", "user_id": "3"}` | `{"message": "Role 'gestor' atribuída ao utilizador 3 com sucesso"}` |
+
+| DELETE | `/api/v1/rbac/revoke` | Revogar role/permission | N/A | `{"item_name": "gestor", "user_id": "3"}` | `{"message": "Role 'gestor' revogada do utilizador 3 com sucesso"}` || DELETE | `/api/v1/documents/{id}` | Remover documento | `id` (path) | N/A | ```json<br>{"message": "Documento removido com sucesso"}``` |- GET /api/v1/users/{id}
 
 
 
-## 7️⃣ Fuel Logs (Registos de Combustível)- POST /api/v1/users
+---  - Detalhes do utilizador
 
-  - Criar utilizador
+
+
+## 1️⃣3️⃣ Authentication (Autenticação)---  - Permissão: users.view
+
+
+
+| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+
+|-----------|----------|-----------|------------|--------|-----------------|
+
+| POST | `/api/v1/auth/login` | Login do utilizador | N/A | `{"email": "joao@veigest.com", "password": "minhasenha123"}` | `{"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...", "token_type": "Bearer", "expires_in": 3600, "user": {"id": 2, "nome": "João Silva", "email": "joao@veigest.com", "roles": ["gestor"]}}` |## 7️⃣ Fuel Logs (Registos de Combustível)- POST /api/v1/users
+
+| POST | `/api/v1/auth/logout` | Logout do utilizador | Header: `Authorization: Bearer <token>` | N/A | `{"message": "Logout realizado com sucesso"}` |
+
+| POST | `/api/v1/auth/refresh` | Renovar token | Header: `Authorization: Bearer <token>` | N/A | `{"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...", "token_type": "Bearer", "expires_in": 3600}` |  - Criar utilizador
+
+| GET | `/api/v1/auth/me` | Perfil do utilizador autenticado | Header: `Authorization: Bearer <token>` | N/A | `{"id": 2, "nome": "João Silva", "email": "joao@veigest.com", "company": {"id": 1, "nome": "VeiGest Demo"}, "roles": ["gestor"], "permissions": ["vehicles.view", "vehicles.create"]}` |
 
 | HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Corpo: { company_id, nome, email, senha, telefone, numero_carta?, validade_carta? }
 
+---
+
 |-----------|----------|-----------|------------|--------|-----------------|  - Permissão: users.create
+
+## 📋 Códigos de Estado HTTP
 
 | GET | `/api/v1/fuel-logs` | Lista registos de combustível | `?company_id=1&vehicle_id=1&driver_id=2&data_inicio=2025-11-01&data_fim=2025-11-08` | N/A | ```json<br>{"items": [{"id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-05", "litros": 45.5, "valor": 68.25, "preco_litro": 1.50, "km_atual": 51500, "notas": "Posto Galp A1"}], "_meta": {"totalCount": 1}}``` |
 
-| GET | `/api/v1/fuel-logs/{id}` | Detalhes do registo | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-05", "litros": 45.5, "valor": 68.25, "preco_litro": 1.50, "km_atual": 51500, "notas": "Posto Galp A1", "vehicle": {"matricula": "AA-11-BB"}, "driver": {"nome": "João Silva"}, "created_at": "2025-11-05T16:30:00Z"}``` |- PUT /api/v1/users/{id}
+| Código | Descrição | Exemplo de Uso |
 
-| POST | `/api/v1/fuel-logs` | Criar registo de combustível | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "km_atual": 52000, "notas": "Posto BP Cascais"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "preco_litro": 1.50, "created_at": "2025-11-08T11:00:00Z"}``` |  - Atualizar utilizador
+|--------|-----------|----------------|| GET | `/api/v1/fuel-logs/{id}` | Detalhes do registo | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-05", "litros": 45.5, "valor": 68.25, "preco_litro": 1.50, "km_atual": 51500, "notas": "Posto Galp A1", "vehicle": {"matricula": "AA-11-BB"}, "driver": {"nome": "João Silva"}, "created_at": "2025-11-05T16:30:00Z"}``` |- PUT /api/v1/users/{id}
 
-| PUT | `/api/v1/fuel-logs/{id}` | Atualizar registo | `id` (path) | ```json<br>{"valor": 72.50, "notas": "Posto BP Cascais - Desconto cliente"}``` | ```json<br>{"id": 2, "valor": 72.50, "preco_litro": 1.45, "notas": "Posto BP Cascais - Desconto cliente", "updated_at": "2025-11-08T11:15:00Z"}``` |  - Corpo: { nome?, email?, telefone?, numero_carta?, validade_carta?, estado? }
+| 200 | OK | Sucesso em GET, PUT |
 
-| DELETE | `/api/v1/fuel-logs/{id}` | Remover registo | `id` (path) | N/A | ```json<br>{"message": "Registo de combustível removido com sucesso"}``` |  - Permissão: users.update
+| 201 | Created | Sucesso em POST (criação) || POST | `/api/v1/fuel-logs` | Criar registo de combustível | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "km_atual": 52000, "notas": "Posto BP Cascais"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "data": "2025-11-08", "litros": 50.0, "valor": 75.00, "preco_litro": 1.50, "created_at": "2025-11-08T11:00:00Z"}``` |  - Atualizar utilizador
 
+| 204 | No Content | Sucesso em DELETE |
 
+| 400 | Bad Request | Dados inválidos no pedido || PUT | `/api/v1/fuel-logs/{id}` | Atualizar registo | `id` (path) | ```json<br>{"valor": 72.50, "notas": "Posto BP Cascais - Desconto cliente"}``` | ```json<br>{"id": 2, "valor": 72.50, "preco_litro": 1.45, "notas": "Posto BP Cascais - Desconto cliente", "updated_at": "2025-11-08T11:15:00Z"}``` |  - Corpo: { nome?, email?, telefone?, numero_carta?, validade_carta?, estado? }
 
----- PATCH /api/v1/users/{id}/password
+| 401 | Unauthorized | Token ausente ou inválido |
+
+| 403 | Forbidden | Sem permissão para o recurso || DELETE | `/api/v1/fuel-logs/{id}` | Remover registo | `id` (path) | N/A | ```json<br>{"message": "Registo de combustível removido com sucesso"}``` |  - Permissão: users.update
+
+| 404 | Not Found | Recurso não encontrado |
+
+| 409 | Conflict | Conflito (ex: email duplicado) |
+
+| 422 | Unprocessable Entity | Erro de validação |
+
+| 429 | Too Many Requests | Rate limiting |---- PATCH /api/v1/users/{id}/password
+
+| 500 | Internal Server Error | Erro interno do servidor |
 
   - Atualizar senha (requere a senha antiga ou token de reset)
 
+---
+
 ## 8️⃣ Alerts (Alertas)  - Corpo: { old_password?, new_password }
+
+## 📚 Exemplos de Uso (curl)
 
   - Permissão: users.update
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+### Login e obtenção de token
 
-|-----------|----------|-----------|------------|--------|-----------------|- DELETE /api/v1/users/{id}
+```bash| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
 
-| GET | `/api/v1/alerts` | Lista alertas | `?company_id=1&tipo=documento&status=ativo&prioridade=alta` | N/A | ```json<br>{"items": [{"id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1}, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}``` |  - Remover utilizador
+curl -X POST https://api.veigest.com/api/v1/auth/login \
 
-| GET | `/api/v1/alerts/{id}` | Detalhes do alerta | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1, "data_validade": "2025-12-08"}, "created_at": "2025-11-08T10:00:00Z", "resolvido_em": null}``` |  - Permissão: users.delete
+  -H "Content-Type: application/json" \|-----------|----------|-----------|------------|--------|-----------------|- DELETE /api/v1/users/{id}
 
-| POST | `/api/v1/alerts` | Criar alerta manual | N/A | ```json<br>{"company_id": 1, "tipo": "manutencao", "titulo": "Manutenção agendada", "descricao": "Revisão agendada para veículo CC-22-DD", "prioridade": "media", "detalhes": {"vehicle_id": 2, "data_agendada": "2025-11-15"}}``` | ```json<br>{"id": 2, "tipo": "manutencao", "titulo": "Manutenção agendada", "status": "ativo", "created_at": "2025-11-08T11:00:00Z"}``` |
+  -d '{"email":"joao@veigest.com","password":"minhasenha123"}'
 
-| PUT | `/api/v1/alerts/{id}` | Atualizar alerta | `id` (path) | ```json<br>{"status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z"}``` | ```json<br>{"id": 1, "status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z", "updated_at": "2025-11-08T11:30:00Z"}``` |- POST /api/v1/users/{id}/assign-role
-
-| DELETE | `/api/v1/alerts/{id}` | Remover alerta | `id` (path) | N/A | ```json<br>{"message": "Alerta removido com sucesso"}``` |  - Atribuir role (admin only)
-
-  - Corpo: { role: "gestor" }
-
----  - Permissão: users.manage-roles
+```| GET | `/api/v1/alerts` | Lista alertas | `?company_id=1&tipo=documento&status=ativo&prioridade=alta` | N/A | ```json<br>{"items": [{"id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1}, "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}``` |  - Remover utilizador
 
 
 
-## 9️⃣ Activity Logs (Logs de Atividade)---
+### Listar veículos com paginação| GET | `/api/v1/alerts/{id}` | Detalhes do alerta | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "tipo": "documento", "titulo": "Documento a expirar", "descricao": "Seguro do veículo AA-11-BB expira em 30 dias", "prioridade": "alta", "status": "ativo", "detalhes": {"vehicle_id": 1, "document_id": 1, "data_validade": "2025-12-08"}, "created_at": "2025-11-08T10:00:00Z", "resolvido_em": null}``` |  - Permissão: users.delete
+
+```bash
+
+curl -H "Authorization: Bearer <TOKEN>" \| POST | `/api/v1/alerts` | Criar alerta manual | N/A | ```json<br>{"company_id": 1, "tipo": "manutencao", "titulo": "Manutenção agendada", "descricao": "Revisão agendada para veículo CC-22-DD", "prioridade": "media", "detalhes": {"vehicle_id": 2, "data_agendada": "2025-11-15"}}``` | ```json<br>{"id": 2, "tipo": "manutencao", "titulo": "Manutenção agendada", "status": "ativo", "created_at": "2025-11-08T11:00:00Z"}``` |
+
+  "https://api.veigest.com/api/v1/vehicles?page=1&pageSize=10&company_id=1"
+
+```| PUT | `/api/v1/alerts/{id}` | Atualizar alerta | `id` (path) | ```json<br>{"status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z"}``` | ```json<br>{"id": 1, "status": "resolvido", "resolvido_em": "2025-11-08T11:30:00Z", "updated_at": "2025-11-08T11:30:00Z"}``` |- POST /api/v1/users/{id}/assign-role
 
 
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |### 3) Vehicles
+### Criar um novo veículo| DELETE | `/api/v1/alerts/{id}` | Remover alerta | `id` (path) | N/A | ```json<br>{"message": "Alerta removido com sucesso"}``` |  - Atribuir role (admin only)
 
-|-----------|----------|-----------|------------|--------|-----------------|Base: /api/v1/vehicles
+```bash
+
+curl -X POST https://api.veigest.com/api/v1/vehicles \  - Corpo: { role: "gestor" }
+
+  -H "Authorization: Bearer <TOKEN>" \
+
+  -H "Content-Type: application/json" \---  - Permissão: users.manage-roles
+
+  -d '{"company_id":1,"matricula":"EE-33-FF","marca":"BMW","modelo":"320d","ano":2023,"tipo_combustivel":"diesel","quilometragem":5000}'
+
+```
+
+
+
+### Upload de ficheiro (documento)## 9️⃣ Activity Logs (Logs de Atividade)---
+
+```bash
+
+curl -X POST https://api.veigest.com/api/v1/files \
+
+  -H "Authorization: Bearer <TOKEN>" \
+
+  -F "file=@seguro_veiculo.pdf" \| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |### 3) Vehicles
+
+  -F "company_id=1" \
+
+  -F "uploaded_by=2"|-----------|----------|-----------|------------|--------|-----------------|Base: /api/v1/vehicles
+
+```
 
 | GET | `/api/v1/activity-logs` | Lista logs de atividade | `?company_id=1&user_id=2&entidade=vehicle&page=1&pageSize=50` | N/A | ```json<br>{"items": [{"id": 1, "user_id": 2, "acao": "CREATE", "entidade": "vehicle", "entidade_id": 1, "detalhes": {"matricula": "AA-11-BB", "marca": "Toyota"}, "ip": "192.168.1.100", "created_at": "2025-11-08T10:00:00Z"}], "_meta": {"totalCount": 1}}``` |
 
-| GET | `/api/v1/activity-logs/{id}` | Detalhes do log | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "user_id": 2, "acao": "CREATE", "entidade": "vehicle", "entidade_id": 1, "detalhes": {"matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla"}, "ip": "192.168.1.100", "user": {"nome": "João Silva"}, "created_at": "2025-11-08T10:00:00Z"}``` |- GET /api/v1/vehicles
+### Iniciar uma rota
 
-  - Lista veículos (filtros: company_id, condutor_id, estado)
+```bash| GET | `/api/v1/activity-logs/{id}` | Detalhes do log | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "user_id": 2, "acao": "CREATE", "entidade": "vehicle", "entidade_id": 1, "detalhes": {"matricula": "AA-11-BB", "marca": "Toyota", "modelo": "Corolla"}, "ip": "192.168.1.100", "user": {"nome": "João Silva"}, "created_at": "2025-11-08T10:00:00Z"}``` |- GET /api/v1/vehicles
 
----  - Permissão: vehicles.view
+curl -X POST https://api.veigest.com/api/v1/routes \
+
+  -H "Authorization: Bearer <TOKEN>" \  - Lista veículos (filtros: company_id, condutor_id, estado)
+
+  -H "Content-Type: application/json" \
+
+  -d '{"company_id":1,"vehicle_id":1,"driver_id":2,"inicio":"2025-11-08T08:00:00Z","km_inicial":52000,"origem":"Lisboa"}'---  - Permissão: vehicles.view
+
+```
 
 
 
-## 🔟 Routes (Rotas)- GET /api/v1/vehicles/{id}
+### Inserir pontos GPS em lote
 
-  - Detalhes do veículo
+```bash## 🔟 Routes (Rotas)- GET /api/v1/vehicles/{id}
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: vehicles.view
+curl -X POST https://api.veigest.com/api/v1/gps-entries/batch \
+
+  -H "Authorization: Bearer <TOKEN>" \  - Detalhes do veículo
+
+  -H "Content-Type: application/json" \
+
+  -d '{"route_id":1,"points":[{"latitude":38.7223,"longitude":-9.1393,"timestamp":"2025-11-08T08:15:00Z","velocidade":60.5},{"latitude":38.7300,"longitude":-9.1500,"timestamp":"2025-11-08T08:20:00Z","velocidade":65.0}]}'| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: vehicles.view
+
+```
 
 |-----------|----------|-----------|------------|--------|-----------------|
+
+---
 
 | GET | `/api/v1/routes` | Lista rotas | `?company_id=1&vehicle_id=1&driver_id=2&status=em_andamento&data_inicio=2025-11-01` | N/A | ```json<br>{"items": [{"id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T08:00:00Z", "fim": "2025-11-08T10:30:00Z", "km_inicial": 52000, "km_final": 52150, "origem": "Lisboa", "destino": "Porto", "status": "concluida", "distancia_km": 150.5}], "_meta": {"totalCount": 1}}``` |- POST /api/v1/vehicles
 
+## 🔧 Notas de Implementação (Yii2 Advanced)
+
 | GET | `/api/v1/routes/{id}` | Detalhes da rota | `id` (path) | N/A | ```json<br>{"id": 1, "company_id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T08:00:00Z", "fim": "2025-11-08T10:30:00Z", "km_inicial": 52000, "km_final": 52150, "origem": "Lisboa", "destino": "Porto", "distancia_km": 150.5, "status": "concluida", "notas": "Viagem sem incidentes", "vehicle": {"matricula": "AA-11-BB"}, "driver": {"nome": "João Silva"}, "total_gps_points": 180, "created_at": "2025-11-08T08:00:00Z"}``` |  - Criar veículo
 
-| POST | `/api/v1/routes` | Iniciar nova rota | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto", "status": "em_andamento", "created_at": "2025-11-08T14:00:00Z"}``` |  - Corpo: { company_id, matricula, marca, modelo, ano, tipo_combustivel, quilometragem, condutor_id? }
+### Estrutura do Projeto
 
-| PUT | `/api/v1/routes/{id}` | Atualizar rota | `id` (path) | ```json<br>{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida"}``` | ```json<br>{"id": 2, "km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida", "updated_at": "2025-11-08T16:00:00Z"}``` |  - Permissão: vehicles.create
+```| POST | `/api/v1/routes` | Iniciar nova rota | N/A | ```json<br>{"company_id": 1, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto"}``` | ```json<br>{"id": 2, "vehicle_id": 1, "driver_id": 2, "inicio": "2025-11-08T14:00:00Z", "km_inicial": 52150, "origem": "Porto", "status": "em_andamento", "created_at": "2025-11-08T14:00:00Z"}``` |  - Corpo: { company_id, matricula, marca, modelo, ano, tipo_combustivel, quilometragem, condutor_id? }
 
-| POST | `/api/v1/routes/{id}/finish` | Encerrar rota | `id` (path) | ```json<br>{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z"}``` | ```json<br>{"message": "Rota encerrada com sucesso", "route": {"id": 2, "status": "concluida", "fim": "2025-11-08T16:00:00Z"}}``` |
+api/
 
-| DELETE | `/api/v1/routes/{id}` | Remover rota | `id` (path) | N/A | ```json<br>{"message": "Rota removida com sucesso"}``` |- PUT /api/v1/vehicles/{id}
+├── modules/| PUT | `/api/v1/routes/{id}` | Atualizar rota | `id` (path) | ```json<br>{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida"}``` | ```json<br>{"id": 2, "km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z", "status": "concluida", "updated_at": "2025-11-08T16:00:00Z"}``` |  - Permissão: vehicles.create
 
-  - Atualizar
+│   └── v1/
 
----  - Permissão: vehicles.update
+│       ├── controllers/| POST | `/api/v1/routes/{id}/finish` | Encerrar rota | `id` (path) | ```json<br>{"km_final": 52300, "destino": "Coimbra", "fim": "2025-11-08T16:00:00Z"}``` | ```json<br>{"message": "Rota encerrada com sucesso", "route": {"id": 2, "status": "concluida", "fim": "2025-11-08T16:00:00Z"}}``` |
 
+│       │   ├── CompanyController.php
 
+│       │   ├── UserController.php| DELETE | `/api/v1/routes/{id}` | Remover rota | `id` (path) | N/A | ```json<br>{"message": "Rota removida com sucesso"}``` |- PUT /api/v1/vehicles/{id}
+
+│       │   ├── VehicleController.php
+
+│       │   └── ...  - Atualizar
+
+│       ├── models/
+
+│       └── Module.php---  - Permissão: vehicles.update
+
+├── config/
+
+└── web/
+
+```
 
 ## 1️⃣1️⃣ GPS Entries (Pontos GPS)- DELETE /api/v1/vehicles/{id}
 
-  - Remover
+### Configuração Básica
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: vehicles.delete
+```php  - Remover
 
-|-----------|----------|-----------|------------|--------|-----------------|
+// api/modules/v1/Module.php
 
-| GET | `/api/v1/gps-entries` | Lista pontos GPS | `?route_id=1&timestamp_inicio=2025-11-08T08:00:00Z&timestamp_fim=2025-11-08T10:30:00Z&page=1&pageSize=100` | N/A | ```json<br>{"items": [{"id": 1, "route_id": 1, "latitude": 38.7223, "longitude": -9.1393, "timestamp": "2025-11-08T08:15:00Z", "velocidade": 60.5, "altitude": 150.2, "precisao": 5.0}], "_meta": {"totalCount": 180, "pageCount": 2}}``` |- POST /api/v1/vehicles/{id}/assign-driver
+public function init()| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |  - Permissão: vehicles.delete
+
+{
+
+    parent::init();|-----------|----------|-----------|------------|--------|-----------------|
+
+    \Yii::$app->user->enableSession = false;
+
+}| GET | `/api/v1/gps-entries` | Lista pontos GPS | `?route_id=1&timestamp_inicio=2025-11-08T08:00:00Z&timestamp_fim=2025-11-08T10:30:00Z&page=1&pageSize=100` | N/A | ```json<br>{"items": [{"id": 1, "route_id": 1, "latitude": 38.7223, "longitude": -9.1393, "timestamp": "2025-11-08T08:15:00Z", "velocidade": 60.5, "altitude": 150.2, "precisao": 5.0}], "_meta": {"totalCount": 180, "pageCount": 2}}``` |- POST /api/v1/vehicles/{id}/assign-driver
+
+```
 
 | GET | `/api/v1/gps-entries/{id}` | Detalhes do ponto GPS | `id` (path) | N/A | ```json<br>{"id": 1, "route_id": 1, "latitude": 38.7223, "longitude": -9.1393, "timestamp": "2025-11-08T08:15:00Z", "velocidade": 60.5, "altitude": 150.2, "precisao": 5.0, "route": {"id": 1, "vehicle_id": 1, "origem": "Lisboa"}}``` |  - Atribuir condutor
 
-| POST | `/api/v1/gps-entries` | Inserir ponto GPS | N/A | ```json<br>{"route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0, "altitude": 200.5, "precisao": 3.0}``` | ```json<br>{"id": 181, "route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}``` |  - Corpo: { driver_id }
+### Controller Exemplo (VehicleController)
 
-| POST | `/api/v1/gps-entries/batch` | Inserir múltiplos pontos GPS | N/A | ```json<br>{"route_id": 2, "points": [{"latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}, {"latitude": 40.2100, "longitude": -8.4200, "timestamp": "2025-11-08T14:31:00Z", "velocidade": 75.0}]}``` | ```json<br>{"message": "2 pontos GPS inseridos com sucesso", "inserted_ids": [182, 183]}``` |  - Permissão: vehicles.assign
+```php| POST | `/api/v1/gps-entries` | Inserir ponto GPS | N/A | ```json<br>{"route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0, "altitude": 200.5, "precisao": 3.0}``` | ```json<br>{"id": 181, "route_id": 2, "latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}``` |  - Corpo: { driver_id }
 
+class VehicleController extends ActiveController
 
+{| POST | `/api/v1/gps-entries/batch` | Inserir múltiplos pontos GPS | N/A | ```json<br>{"route_id": 2, "points": [{"latitude": 40.2033, "longitude": -8.4103, "timestamp": "2025-11-08T14:30:00Z", "velocidade": 80.0}, {"latitude": 40.2100, "longitude": -8.4200, "timestamp": "2025-11-08T14:31:00Z", "velocidade": 75.0}]}``` | ```json<br>{"message": "2 pontos GPS inseridos com sucesso", "inserted_ids": [182, 183]}``` |  - Permissão: vehicles.assign
 
-------
+    public $modelClass = 'common\models\Vehicle';
 
+    
 
+    public function behaviors()
 
-## 1️⃣2️⃣ RBAC Management### 4) Maintenances
+    {------
 
-Base: /api/v1/maintenances
+        return ArrayHelper::merge(parent::behaviors(), [
 
-| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+            'authenticator' => [
 
-|-----------|----------|-----------|------------|--------|-----------------|- GET /api/v1/maintenances
+                'class' => HttpBearerAuth::class,
 
-| GET | `/api/v1/rbac/roles` | Lista roles | N/A | N/A | ```json<br>{"items": [{"name": "super-admin", "description": "Super Administrador - Acesso Total", "type": 1}, {"name": "admin", "description": "Administrador", "type": 1}, {"name": "gestor", "description": "Gestor de Frota", "type": 1}]}``` |  - Lista manutenções (filtros: vehicle_id, company_id, status)
+            ],## 1️⃣2️⃣ RBAC Management### 4) Maintenances
 
-| GET | `/api/v1/rbac/permissions` | Lista permissões | N/A | N/A | ```json<br>{"items": [{"name": "companies.view", "description": "Ver empresas", "type": 2}, {"name": "vehicles.create", "description": "Criar veículos", "type": 2}]}``` |  - Permissão: maintenances.view
+            'rateLimiter' => [
 
-| GET | `/api/v1/rbac/user-assignments/{user_id}` | Lista atribuições do utilizador | `user_id` (path) | N/A | ```json<br>{"user_id": "2", "assignments": [{"item_name": "gestor", "created_at": 1699459200}]}``` |
+                'class' => RateLimiter::class,Base: /api/v1/maintenances
 
-| POST | `/api/v1/rbac/roles` | Criar role | N/A | ```json<br>{"name": "tecnico", "description": "Técnico de Manutenção"}``` | ```json<br>{"name": "tecnico", "description": "Técnico de Manutenção", "type": 1, "created_at": 1699545600}``` |- GET /api/v1/maintenances/{id}
+            ],
 
-| POST | `/api/v1/rbac/assign` | Atribuir role/permission | N/A | ```json<br>{"item_name": "gestor", "user_id": "3"}``` | ```json<br>{"message": "Role 'gestor' atribuída ao utilizador 3 com sucesso"}``` |  - Detalhes
+        ]);| HTTP Verb | Endpoint | Descrição | Parâmetros | Pedido | Resposta (JSON) |
+
+    }
+
+    |-----------|----------|-----------|------------|--------|-----------------|- GET /api/v1/maintenances
+
+    public function actions()
+
+    {| GET | `/api/v1/rbac/roles` | Lista roles | N/A | N/A | ```json<br>{"items": [{"name": "super-admin", "description": "Super Administrador - Acesso Total", "type": 1}, {"name": "admin", "description": "Administrador", "type": 1}, {"name": "gestor", "description": "Gestor de Frota", "type": 1}]}``` |  - Lista manutenções (filtros: vehicle_id, company_id, status)
+
+        $actions = parent::actions();
+
+        $actions['index']['dataFilter'] = [| GET | `/api/v1/rbac/permissions` | Lista permissões | N/A | N/A | ```json<br>{"items": [{"name": "companies.view", "description": "Ver empresas", "type": 2}, {"name": "vehicles.create", "description": "Criar veículos", "type": 2}]}``` |  - Permissão: maintenances.view
+
+            'class' => ActiveDataFilter::class,
+
+            'searchModel' => VehicleSearch::class,| GET | `/api/v1/rbac/user-assignments/{user_id}` | Lista atribuições do utilizador | `user_id` (path) | N/A | ```json<br>{"user_id": "2", "assignments": [{"item_name": "gestor", "created_at": 1699459200}]}``` |
+
+        ];
+
+        return $actions;| POST | `/api/v1/rbac/roles` | Criar role | N/A | ```json<br>{"name": "tecnico", "description": "Técnico de Manutenção"}``` | ```json<br>{"name": "tecnico", "description": "Técnico de Manutenção", "type": 1, "created_at": 1699545600}``` |- GET /api/v1/maintenances/{id}
+
+    }
+
+}| POST | `/api/v1/rbac/assign` | Atribuir role/permission | N/A | ```json<br>{"item_name": "gestor", "user_id": "3"}``` | ```json<br>{"message": "Role 'gestor' atribuída ao utilizador 3 com sucesso"}``` |  - Detalhes
+
+```
 
 | DELETE | `/api/v1/rbac/revoke` | Revogar role/permission | N/A | ```json<br>{"item_name": "gestor", "user_id": "3"}``` | ```json<br>{"message": "Role 'gestor' revogada do utilizador 3 com sucesso"}``` |  - Permissão: maintenances.view
 
+---
 
 
----- POST /api/v1/maintenances
+
+**Ficheiro:** API_ENDPOINTS.md  
+
+**Última atualização:** 8 de novembro de 2025---- POST /api/v1/maintenances
 
   - Criar
 

@@ -1,7 +1,7 @@
 -- VeiGest - Schema Ultra-Simplificado com RBAC Yii2
--- Última atualização: 2025-11-06 (Revisão 2 + Rotas GPS)
--- ULTRA-LEAN: 12 tabelas principais + 4 RBAC + 4 views
--- Adicionado: Sistema simples de rastreamento GPS e rotas
+-- Última atualização: 2025-11-06 (Revisão 3 - Sem GPS)
+-- ULTRA-LEAN: 9 tabelas principais + 4 RBAC + 3 views
+-- Removido: Sistema de rastreamento GPS e rotas
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP DATABASE IF EXISTS veigest;
@@ -77,7 +77,7 @@ CREATE TABLE users (
     company_id INT NOT NULL,
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL,
-    senha_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
     estado ENUM('ativo','inativo') NOT NULL DEFAULT 'ativo',
     auth_key VARCHAR(32) COMMENT 'Para autenticação Yii2',
@@ -264,62 +264,7 @@ CREATE TABLE activity_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
--- 9. ROTAS E RASTREAMENTO GPS
--- ============================================================================
-
--- 9.1 Rotas (Viagens)
-CREATE TABLE routes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL,
-    vehicle_id INT NOT NULL,
-    driver_id INT NOT NULL,
-    inicio DATETIME NOT NULL COMMENT 'Data/hora início da rota',
-    fim DATETIME COMMENT 'Data/hora fim da rota (NULL se em andamento)',
-    km_inicial INT COMMENT 'Quilometragem no início',
-    km_final INT COMMENT 'Quilometragem no final',
-    origem VARCHAR(255) COMMENT 'Local de partida',
-    destino VARCHAR(255) COMMENT 'Local de chegada',
-    distancia_km DECIMAL(10,2) COMMENT 'Distância calculada',
-    status ENUM('em_andamento', 'concluida', 'cancelada') DEFAULT 'em_andamento',
-    notas TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_routes_company (company_id),
-    INDEX idx_routes_vehicle (vehicle_id),
-    INDEX idx_routes_driver (driver_id),
-    INDEX idx_routes_inicio (inicio),
-    INDEX idx_routes_status (status),
-    
-    CONSTRAINT fk_routes_company FOREIGN KEY (company_id) 
-        REFERENCES companies(id) ON DELETE CASCADE,
-    CONSTRAINT fk_routes_vehicle FOREIGN KEY (vehicle_id) 
-        REFERENCES vehicles(id) ON DELETE CASCADE,
-    CONSTRAINT fk_routes_driver FOREIGN KEY (driver_id) 
-        REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 9.2 Pontos GPS (Rastreamento)
-CREATE TABLE gps_entries (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    route_id INT NOT NULL,
-    latitude DECIMAL(10,8) NOT NULL COMMENT 'Latitude (-90 a 90)',
-    longitude DECIMAL(11,8) NOT NULL COMMENT 'Longitude (-180 a 180)',
-    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    velocidade DECIMAL(5,2) COMMENT 'Velocidade em km/h',
-    altitude DECIMAL(8,2) COMMENT 'Altitude em metros',
-    precisao DECIMAL(6,2) COMMENT 'Precisão GPS em metros',
-    
-    INDEX idx_gps_route (route_id),
-    INDEX idx_gps_timestamp (timestamp),
-    INDEX idx_gps_coords (latitude, longitude),
-    
-    CONSTRAINT fk_gps_route FOREIGN KEY (route_id) 
-        REFERENCES routes(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================================
--- 10. VIEWS ÚTEIS
+-- 9. VIEWS ÚTEIS
 -- ============================================================================
 CREATE VIEW v_documents_expiring AS
 SELECT
@@ -371,33 +316,8 @@ LEFT JOIN maintenances m ON v.id = m.vehicle_id
 LEFT JOIN fuel_logs fl ON v.id = fl.vehicle_id
 GROUP BY v.id;
 
--- View para rotas ativas e concluídas
-CREATE VIEW v_routes_summary AS
-SELECT
-    r.id,
-    r.company_id,
-    r.vehicle_id,
-    r.driver_id,
-    v.matricula,
-    u.nome AS driver_nome,
-    r.inicio,
-    r.fim,
-    r.origem,
-    r.destino,
-    r.km_inicial,
-    r.km_final,
-    (r.km_final - r.km_inicial) AS km_percorridos,
-    r.distancia_km,
-    r.status,
-    TIMESTAMPDIFF(MINUTE, r.inicio, COALESCE(r.fim, NOW())) AS duracao_minutos,
-    (SELECT COUNT(*) FROM gps_entries WHERE route_id = r.id) AS total_gps_points
-FROM routes r
-INNER JOIN vehicles v ON r.vehicle_id = v.id
-INNER JOIN users u ON r.driver_id = u.id
-ORDER BY r.inicio DESC;
-
 -- ============================================================================
--- 11. DADOS INICIAIS
+-- 10. DADOS INICIAIS
 -- ============================================================================
 
 -- Empresa padrão
@@ -418,12 +338,12 @@ VALUES (
 );
 
 -- Utilizador administrador
-INSERT INTO users (company_id, nome, email, senha_hash, estado, auth_key)
+INSERT INTO users (company_id, nome, email, password_hash, estado, auth_key)
 VALUES (
     1,
-    'Administrador',
+    'admin',
     'admin@veigest.com',
-    '$2y$13$X5H3vq5YM8hGzR4Q3P9fLe5j4N6O7K8L9M0P1Q2R3S4T5U6V7W8X9Y',
+    '$2a$12$/piK/Am/.6Wau7PpIzvO5ergX4AG17Xzk5RicS1Yom6YSsE5sSlgG',
     'ativo',
     MD5(CONCAT('admin@veigest.com', NOW()))
 );
@@ -491,12 +411,6 @@ INSERT INTO auth_item (name, type, description, created_at, updated_at) VALUES
 ('fuel.update', 2, 'Editar registos de combustível', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 ('fuel.delete', 2, 'Eliminar registos de combustível', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 
--- Routes
-('routes.view', 2, 'Ver rotas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-('routes.create', 2, 'Iniciar rotas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-('routes.update', 2, 'Editar rotas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-('routes.delete', 2, 'Eliminar rotas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-
 -- Alerts
 ('alerts.view', 2, 'Ver alertas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 ('alerts.create', 2, 'Criar alertas', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
@@ -538,7 +452,6 @@ SELECT 'gestor', name FROM auth_item WHERE type = 2 AND name IN (
     'drivers.view', 'drivers.create', 'drivers.update',
     'files.view', 'files.upload',
     'fuel.view', 'fuel.update',
-    'routes.view',
     'alerts.view', 'alerts.resolve',
     'reports.view', 'reports.create', 'reports.export', 'reports.advanced',
     'dashboard.view', 'dashboard.advanced'
@@ -566,7 +479,6 @@ SELECT 'condutor-senior', name FROM auth_item WHERE type = 2 AND name IN (
     'drivers.view',
     'files.view',
     'fuel.view', 'fuel.create',
-    'routes.view', 'routes.create',
     'documents.view',
     'alerts.view',
     'reports.view',
@@ -579,7 +491,6 @@ SELECT 'condutor', name FROM auth_item WHERE type = 2 AND name IN (
     'vehicles.view',
     'files.view',
     'fuel.view', 'fuel.create',
-    'routes.view', 'routes.create',
     'documents.view',
     'alerts.view',
     'dashboard.view'
